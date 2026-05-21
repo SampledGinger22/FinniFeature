@@ -133,3 +133,26 @@
   `fromDatePickerValue` (the dayjs⇄`YYYY-MM-DD` bridge, +2 shared tests) so the antd `DatePicker` is wired
   via Form `getValueProps`/`normalize` without the component importing dayjs (C8 holds). Future dates are
   disabled; a live derived-age hint shows. The caseload E2E now also edits DOB through the calendar (D49).
+
+### Parallelize views/features — foundation (Step 5)
+- Moved `RepositoryScope` to `@finni/shared` (`enums/repositoryScope.ts`); it is now part of the HTTP
+  contract (`?scope=`). The API enum re-exports it so existing imports are unchanged (D51).
+- Exposed the remaining patient operations through the route-core (the services existed since Step 2):
+  `createPatientRoute` (POST, 201), `archive`/`unarchive`/`restore` (POST action sub-resources),
+  `softDeletePatientRoute` (DELETE), and a new `demoRoutes.ts` + `demoService.ts` for `purge`/`reseed`/
+  `blank-slate`. Wired into the dev server and the restructured Vercel functions (`patients/[id]/index.ts`,
+  `patients/[id]/[action].ts`, `demo/[action].ts`) (D53). +13 api route-core tests (now 25).
+- Added the shared data + filter layer: `useCaseloadStore` (Zustand — filters + view mode + scope, not
+  persisted since name search can be PHI), the pure `applyCaseloadFilters`/`deriveFilterFacets`
+  (`filtering/caseloadFiltering.ts`), and `useFilteredPatients` (memoized, with live counts). The hero
+  facets — status × region × city × age × name search — run client-side over the loaded scoped set; scope
+  is the only server dimension (keyed query) (D52). +11 web filter tests.
+- Reworked the caseload UI around one filter layer: `CaseloadView` is now a switcher (owns
+  loading/error/empty, delegates the data state to card/table/board by view mode); extracted
+  `CaseloadCardView`; added `CaseloadViewSwitcher`, the shared `PatientActionsMenu` (archive/unarchive/
+  delete/restore via mutations), and the `PatientCollectionViewProps` contract. `CaseloadPage` now drives
+  scope → query → filter → active view, with an Add-patient button and nav. Added query mutation hooks
+  for create/lifecycle/demo. Added `/your-day` and `/settings` routes.
+- Placeholders pending the parallel streams: `CaseloadFilterBar` (hero filter UI), `CaseloadTableView`,
+  `CaseloadBoardView`, `PatientCreateDrawer` (bottom), `DemoControls`, `SettingsPage`, `YourDayPage` —
+  each implements its final contract so the foundation type-checks; the streams fill them in.

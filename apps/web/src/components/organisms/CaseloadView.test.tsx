@@ -21,7 +21,7 @@ describe('CaseloadView', () => {
     renderWithProviders(
       <CaseloadView patients={[]} isLoading={false} isError={false} onRetry={noop} onEditPatient={noop} />,
     );
-    expect(screen.getByText('No patients in this view yet')).toBeInTheDocument();
+    expect(screen.getByText('No patients match these filters')).toBeInTheDocument();
   });
 
   it('renders a card per patient when data is present', () => {

@@ -5,10 +5,23 @@ import { getDb } from '@/db/client';
 import { createMigratedPgliteDb } from '@/db/pglite';
 import { seedPatients } from '@/seed/seedData';
 import { getHealthStatus } from '@/services/health.service';
-import { getPatientRoute, listPatientsRoute, updatePatientRoute } from '@/http/patientRoutes';
+import {
+  archivePatientRoute,
+  createPatientRoute,
+  getPatientRoute,
+  listPatientsRoute,
+  restorePatientRoute,
+  softDeletePatientRoute,
+  unarchivePatientRoute,
+  updatePatientRoute,
+} from '@/http/patientRoutes';
+import type { RouteResult } from '@/http/patientRoutes';
+import { blankSlateRoute, purgeExpiredRoute, reseedRoute } from '@/http/demoRoutes';
 
 const DEFAULT_PORT = 3001;
 const PATIENT_ID_PATTERN = /^\/api\/patients\/([^/]+)\/?$/;
+const PATIENT_ACTION_PATTERN = /^\/api\/patients\/([^/]+)\/(archive|unarchive|restore)\/?$/;
+const DEMO_ACTION_PATTERN = /^\/api\/demo\/(purge|reseed|blank-slate)\/?$/;
 
 // Local dev transport for the same route-core the Vercel functions use. Not the deploy path —
 // production runs the serverless functions in apps/api/api (spec §2 deployment reality).
@@ -39,6 +52,19 @@ function sendJson(res: ServerResponse, status: number, body: unknown): void {
   res.end(JSON.stringify(body));
 }
 
+// Map a lifecycle action segment to its route-core; the regex already constrained the values.
+async function runPatientAction(db: AppDatabase, id: string, action: string): Promise<RouteResult> {
+  if (action === 'archive') return archivePatientRoute(db, id);
+  if (action === 'unarchive') return unarchivePatientRoute(db, id);
+  return restorePatientRoute(db, id);
+}
+
+async function runDemoAction(db: AppDatabase, action: string): Promise<RouteResult> {
+  if (action === 'purge') return purgeExpiredRoute(db);
+  if (action === 'reseed') return reseedRoute(db);
+  return blankSlateRoute(db);
+}
+
 async function handleRequest(db: AppDatabase, req: IncomingMessage, res: ServerResponse): Promise<void> {
   const url = new URL(req.url ?? '/', 'http://localhost');
   const path = url.pathname;
@@ -53,6 +79,24 @@ async function handleRequest(db: AppDatabase, req: IncomingMessage, res: ServerR
     sendJson(res, result.status, result.body);
     return;
   }
+  if (path === '/api/patients' && method === 'POST') {
+    const result = await createPatientRoute(db, await readJsonBody(req));
+    sendJson(res, result.status, result.body);
+    return;
+  }
+  const actionMatch = PATIENT_ACTION_PATTERN.exec(path);
+  if (actionMatch && method === 'POST') {
+    const id = decodeURIComponent(actionMatch[1]!);
+    const result = await runPatientAction(db, id, actionMatch[2]!);
+    sendJson(res, result.status, result.body);
+    return;
+  }
+  const demoMatch = DEMO_ACTION_PATTERN.exec(path);
+  if (demoMatch && method === 'POST') {
+    const result = await runDemoAction(db, demoMatch[1]!);
+    sendJson(res, result.status, result.body);
+    return;
+  }
   const idMatch = PATIENT_ID_PATTERN.exec(path);
   if (idMatch) {
     const id = decodeURIComponent(idMatch[1]!);
@@ -63,6 +107,11 @@ async function handleRequest(db: AppDatabase, req: IncomingMessage, res: ServerR
     }
     if (method === 'PATCH') {
       const result = await updatePatientRoute(db, id, await readJsonBody(req));
+      sendJson(res, result.status, result.body);
+      return;
+    }
+    if (method === 'DELETE') {
+      const result = await softDeletePatientRoute(db, id);
       sendJson(res, result.status, result.body);
       return;
     }

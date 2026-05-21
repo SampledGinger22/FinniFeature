@@ -3,6 +3,7 @@ import { DateTimeUtil } from '@finni/shared';
 import type { PatientWithRelations } from '@finni/shared';
 import { PatientAvatar } from '@/components/atoms/PatientAvatar';
 import { StatusTag } from '@/components/atoms/StatusTag';
+import { PatientActionsMenu } from '@/components/molecules/PatientActionsMenu';
 import { usePatientCardStyles } from '@/components/molecules/PatientCard.styles';
 
 interface PatientCardProps {
@@ -43,8 +44,10 @@ export function PatientCard({ patient, onEdit }: PatientCardProps): JSX.Element 
           <div className={styles.tags}>
             <StatusTag status={patient.status} />
             {patient.hasInsurance ? <Tag>Insured</Tag> : null}
+            {patient.archived ? <Tag>Archived</Tag> : null}
           </div>
         </div>
+        <PatientActionsMenu patient={patient} />
       </div>
     </Card>
   );

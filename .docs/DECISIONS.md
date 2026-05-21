@@ -242,3 +242,28 @@ graded (UI/UX and code quality for patient management).
   refreshes instantly (§9, the "rapid refresh" requirement, not hand-rolled). `react-router-dom`
   routes `/` → caseload (the app) and `/kitchen-sink` → the QA/visual-regression surface; the query
   client uses the shared cache TTL and disables refetch-on-window-focus.
+
+### Step 5 — Parallelize views/features (foundation)
+- **D51 — `RepositoryScope` moves to `@finni/shared`; it is now part of the HTTP contract.** Step 5
+  surfaces scope as the `?scope=` query param (active / include-archived / include-deleted), so the web
+  must send it and the API must validate it against ONE definition (the "shared package is the contract"
+  rule). The const-object enum now lives in `packages/shared/src/enums/repositoryScope.ts`; the API's
+  `@/enums/repositoryScope` re-exports it so existing API imports are untouched. Supersedes the
+  API-local definition from Step 2.
+- **D52 — One client-side hero filter + one shared filter/view store feeds all three views.** Scope is
+  the only *server* dimension (it changes which rows return, so it is the query key → a scope change
+  refetches). The hero facets — status (multi) × region × city × age range × **name search** — run
+  **client-side** over the loaded scoped set as one pure function (`applyCaseloadFilters`), so they are
+  general (never hardcoded to a query), unit-testable, and identical across card/table/board.
+  `useCaseloadStore` (Zustand) owns filters + view mode; it is **deliberately not persisted** because
+  `nameSearch` can hold PHI, which never touches localStorage (only prefs do — extends D44). The switcher
+  owns loading/error/empty and renders the active view from the SAME filtered set, so switching views
+  never refetches (§8). `CaseloadViewMode` is a web-only const-object enum (not in shared — not part of
+  the API contract).
+- **D53 — Write/lifecycle/demo HTTP surface as action sub-resources; Vercel functions restructured.**
+  Create = `POST /api/patients`; lifecycle = `POST /api/patients/:id/{archive|unarchive|restore}` and
+  `DELETE /api/patients/:id` (soft delete); demo = `POST /api/demo/{purge|reseed|blank-slate}`. The
+  service methods already existed (Step 2); Step 5 only exposes them through the one route-core. The
+  Vercel function tree became `patients/[id]/index.ts` + `patients/[id]/[action].ts` + `demo/[action].ts`
+  (replacing `patients/[id].ts`) to avoid a file-vs-dynamic-directory routing collision. Each lifecycle
+  route re-reads at the scope where the new state is visible and 404s a missing id.

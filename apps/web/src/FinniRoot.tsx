@@ -3,6 +3,8 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { FinniThemeProvider } from '@/theme/FinniThemeProvider';
 import { queryClient } from '@/queries/queryClient';
 import { CaseloadPage } from '@/pages/CaseloadPage';
+import { SettingsPage } from '@/pages/SettingsPage';
+import { YourDayPage } from '@/pages/YourDayPage';
 import { KitchenSinkPage } from '@/pages/KitchenSinkPage';
 
 // App root: server-state (TanStack Query) and theme wrap the router. The caseload is the app;
@@ -14,6 +16,8 @@ export function FinniRoot(): JSX.Element {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<CaseloadPage />} />
+            <Route path="/your-day" element={<YourDayPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
             <Route path="/kitchen-sink" element={<KitchenSinkPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

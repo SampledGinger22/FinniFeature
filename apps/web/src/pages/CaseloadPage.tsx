@@ -1,24 +1,35 @@
 import { useState } from 'react';
-import { Typography } from 'antd';
+import { Button, Space, Typography } from 'antd';
+import { Link } from 'react-router-dom';
 import type { PatientWithRelations } from '@finni/shared';
 import { BrandLogo } from '@/components/atoms/BrandLogo';
+import { CaseloadViewSwitcher } from '@/components/molecules/CaseloadViewSwitcher';
 import { ErrorBoundary } from '@/components/molecules/ErrorBoundary';
+import { CaseloadFilterBar } from '@/components/organisms/CaseloadFilterBar';
 import { CaseloadView } from '@/components/organisms/CaseloadView';
+import { PatientCreateDrawer } from '@/components/organisms/PatientCreateDrawer';
 import { PatientEditDrawer } from '@/components/organisms/PatientEditDrawer';
+import { useCaseloadStore } from '@/state/useCaseloadStore';
+import { useFilteredPatients } from '@/hooks/useFilteredPatients';
 import { usePatientListQuery } from '@/queries/patientQueries';
 import { useCaseloadPageStyles } from '@/pages/CaseloadPage.styles';
 
-// The vertical slice (build order §15.4): real data via TanStack Query → card grid with all
-// states → edit drawer → mutation → invalidate. This is the pattern Step 5 copies.
+// The caseload workspace: scope (a server dimension) drives the query; the hero filters then run
+// client-side over that loaded set, feeding one filtered result to whichever view is active. Each
+// region has its own error boundary so one failing widget never blanks the page (§8).
 export function CaseloadPage(): JSX.Element {
   const { styles } = useCaseloadPageStyles();
-  const query = usePatientListQuery();
+  const scope = useCaseloadStore((state) => state.scope);
+  const query = usePatientListQuery(scope);
+  const { patients, facets, totalLoaded, matchCount } = useFilteredPatients(query.data);
+
   const [editingPatient, setEditingPatient] = useState<PatientWithRelations | null>(null);
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [createOpen, setCreateOpen] = useState(false);
 
   const openEditor = (patient: PatientWithRelations): void => {
     setEditingPatient(patient);
-    setDrawerOpen(true);
+    setEditOpen(true);
   };
 
   return (
@@ -28,17 +39,36 @@ export function CaseloadPage(): JSX.Element {
         <Typography.Title level={3} className={styles.title}>
           Caseload
         </Typography.Title>
+        <nav className={styles.nav}>
+          <Link to="/your-day">Your day</Link>
+          <Link to="/settings">Settings</Link>
+        </nav>
       </header>
+
+      <div className={styles.toolbar}>
+        <ErrorBoundary fallbackTitle="Filters are unavailable">
+          <CaseloadFilterBar facets={facets} totalLoaded={totalLoaded} matchCount={matchCount} />
+        </ErrorBoundary>
+        <Space>
+          <CaseloadViewSwitcher />
+          <Button type="primary" onClick={() => setCreateOpen(true)}>
+            Add patient
+          </Button>
+        </Space>
+      </div>
+
       <ErrorBoundary fallbackTitle="The caseload could not be displayed">
         <CaseloadView
-          patients={query.data}
+          patients={patients}
           isLoading={query.isLoading}
           isError={query.isError}
           onRetry={() => void query.refetch()}
           onEditPatient={openEditor}
         />
       </ErrorBoundary>
-      <PatientEditDrawer patient={editingPatient} open={drawerOpen} onClose={() => setDrawerOpen(false)} />
+
+      <PatientEditDrawer patient={editingPatient} open={editOpen} onClose={() => setEditOpen(false)} />
+      <PatientCreateDrawer open={createOpen} onClose={() => setCreateOpen(false)} />
     </div>
   );
 }

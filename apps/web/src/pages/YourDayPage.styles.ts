@@ -1,6 +1,6 @@
 import { createStyles } from 'antd-style';
 
-export const useCaseloadPageStyles = createStyles(({ css, token }) => ({
+export const useYourDayPageStyles = createStyles(({ css, token }) => ({
   page: css`
     min-height: 100vh;
     padding: var(--finni-space-xl);
@@ -16,17 +16,5 @@ export const useCaseloadPageStyles = createStyles(({ css, token }) => ({
   `,
   title: css`
     margin: 0;
-  `,
-  nav: css`
-    margin-left: auto;
-    display: flex;
-    gap: var(--finni-space-md);
-  `,
-  toolbar: css`
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--finni-space-md);
-    flex-wrap: wrap;
   `,
 }));
