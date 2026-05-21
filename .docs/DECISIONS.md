@@ -267,3 +267,9 @@ graded (UI/UX and code quality for patient management).
   Vercel function tree became `patients/[id]/index.ts` + `patients/[id]/[action].ts` + `demo/[action].ts`
   (replacing `patients/[id].ts`) to avoid a file-vs-dynamic-directory routing collision. Each lifecycle
   route re-reads at the scope where the new state is visible and 404s a missing id.
+- **D54 — `@dnd-kit/core` for the board view drag-and-drop.** The board (kanban) needs accessible
+  drag-to-change-status; dnd-kit is the modern, lightweight (~10 kB gzip, no deps), keyboard-accessible
+  choice (PointerSensor + KeyboardSensor) and is the library the parallelization plan named. Only
+  `@dnd-kit/core` is added (not `sortable`/`utilities`) — columns are droppables and cards are draggables;
+  no in-list reordering is needed. The drag/group logic is extracted to a pure, unit-tested helper
+  (`caseloadBoard.ts`) since real pointer drag is not testable under jsdom.

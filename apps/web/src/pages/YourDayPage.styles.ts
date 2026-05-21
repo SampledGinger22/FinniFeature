@@ -17,4 +17,12 @@ export const useYourDayPageStyles = createStyles(({ css, token }) => ({
   title: css`
     margin: 0;
   `,
+  nav: css`
+    margin-left: auto;
+  `,
+  content: css`
+    display: flex;
+    flex-direction: column;
+    gap: var(--finni-space-lg);
+  `,
 }));

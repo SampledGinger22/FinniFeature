@@ -156,3 +156,26 @@
 - Placeholders pending the parallel streams: `CaseloadFilterBar` (hero filter UI), `CaseloadTableView`,
   `CaseloadBoardView`, `PatientCreateDrawer` (bottom), `DemoControls`, `SettingsPage`, `YourDayPage` —
   each implements its final contract so the foundation type-checks; the streams fill them in.
+
+### Parallelize views/features — streams (Step 5)
+- Built the seven placeholder components in parallel against the foundation contract, each over the one
+  shared data + filter layer:
+  - **Hero filter bar** (`CaseloadFilterBar`): name search + status multi-select + region + city + age
+    range slider + scope ("Show: Active/Archived/Trash"), with live `${matchCount} of ${totalLoaded}`
+    and reset. General/customizable — options come only from the loaded facets, nothing hardcoded.
+  - **Table view** (`CaseloadTableView`): antd Table (avatar+name, age, status, location, insurance,
+    actions); row click edits.
+  - **Board view** (`CaseloadBoardView` + pure `caseloadBoard.ts`): dnd-kit kanban, one column per status;
+    dragging a card changes status via the update mutation; click edits. Pure move/group helpers unit-tested.
+  - **Create flow** (`PatientCreateDrawer`): bottom drawer, shared `patientCreateSchema`, the DateTimeUtil
+    DOB bridge, atomic create via the mutation.
+  - **Settings** (`SettingsPage`): wires `usePreferencesStore` (palette/font/scale/density/timezone) so the
+    theme updates live; hosts the demo controls.
+  - **Your day** (`YourDayPage` + `YourDaySummary` + pure `yourDayStats.ts`): at-a-glance caseload stats
+    over the active scope with its own loading/error/empty states and an error boundary.
+  - **Demo controls** (`DemoControls`): confirm-gated Purge / Reseed / Blank slate via the demo mutations.
+- Added `@dnd-kit/core` (web dep) for the board drag-and-drop (D54).
+- Convergence: ran the three-pass deep-review (security/PHI, performance, conventions). Security clean
+  (filter store stays unpersisted; no PHI in logs/storage). Applied the performance findings — memoized the
+  table columns, board grouping, filter-bar options, and your-day summary, and hoisted the static settings
+  option arrays. +49 web tests (now 84). Lint/type-check/test green; web production build verified.
