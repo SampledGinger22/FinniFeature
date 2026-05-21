@@ -125,7 +125,11 @@ skeuomorphic gradients/shadows/text-shadows are dropped (decision logged).
 globally without false positives, so the `no-magic-numbers` + hex/px lint applies to
 style-convention files only: `**/*.styles.{ts,tsx}` and `**/theme/**`. Because styling is
 centralized (C9), raw style values may live *only* there — so scoping the lint there is
-equivalent to enforcing it everywhere styles legitimately appear (decision D31).
+equivalent to enforcing it everywhere styles legitimately appear (decision D31). The single
+token-*source* file (`theme/finniTokens.ts`) is exempt from the hex/number rules — it holds the
+real values antd's `ThemeConfig` seed requires (a `var()` can't seed antd's ramp, and numeric
+tokens can't be strings without `any`); it *is* the token, so C6's "reference a token" cannot
+apply to it. Everything else under `theme/**` stays fully linted. See D42.
 
 ### Density
 Compose antd's `compactAlgorithm` with `defaultAlgorithm`. Compact on by default; a

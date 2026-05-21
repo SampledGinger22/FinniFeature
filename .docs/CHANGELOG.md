@@ -76,3 +76,33 @@
 - Docker hardened (D41): explicit Compose project name `finni`, host port 5434, named volume.
 - Verified end-to-end against local Postgres: seed → headline "intake/NY/under-30" returns rows
   → PHI stored as ciphertext while region stays queryable.
+
+### Design system, atoms, kitchen sink (Step 3)
+- Added the design-token system in `@finni/web`: a single token source (`theme/finniTokens.ts`)
+  for the two palettes (default warm cream, eye-strain dim) — brand orange `#ed762f`, slate text,
+  six AA status colors, brighter warm semantic colors, radii/spacing/font scales/font-family stacks.
+  `theme/finniTheme.ts` maps preferences → antd `ThemeConfig` (compact composes over default; primary
+  button carries dark ink, D22); `theme/cssVariables.ts` bridges status/radius/spacing tokens to
+  `:root` vars for custom primitives. *Why:* implements the locked design (D21–D24) as one source so
+  styles can't drift.
+- Added `D42` lint exemption for the token-source file (antd seeds need real hex/numbers; a `var()`
+  can't seed antd's ramp and numeric tokens can't be strings without `any`). Every other style/theme
+  file stays fully C6-linted. *Why:* the token source *is* the token; C6's component-style intent is
+  unchanged. (Amends D31's scope.)
+- Added `usePreferencesStore` (Zustand + `persist` → localStorage, prefs only) and
+  `FinniThemeProvider` (store → antd-style `ThemeProvider` + runtime `:root` CSS-var injection +
+  base document styles). *Why:* Zustand owns global UI state and prefs persist client-side (§9/§10, D44).
+- Added atoms `BrandLogo` (real mark + neutral fallback + light plate on dark, D27), `PatientAvatar`
+  (deterministic colored silhouette + `VITE_USE_HEADSHOTS` flag, D26/D45), `StatusTag` (six statuses via
+  per-status CSS vars), and the `ErrorBoundary` molecule (per-widget resilience, §8). Each has a
+  colocated test (24 web tests).
+- Added `a11y/statusColorContrast.test.ts`: codifies D23 — every status fg/bg pair is ≥4.5:1 (WCAG AA)
+  across both palettes, and the D22 orange-ink button passes while white-on-orange fails. *Why:* a
+  palette edit that breaks contrast now fails CI instead of shipping.
+- Added the kitchen-sink page (`pages/KitchenSinkPage.tsx`) rendering every primitive in every state
+  (loading/empty/error/disabled) with live palette/density/font controls, plus two committed Playwright
+  baselines (default; eye-strain + comfortable) as the visual-regression surface (D46, §14). Replaced the
+  Step 0 placeholder shell (`FinniRoot`), removed the now-unused `SHARED_PACKAGE_NAME` export, and added
+  a `window.matchMedia` test stub for antd under jsdom.
+- Tooling: added `antd`, `antd-style`, `zustand` (deps) and `@playwright/test`,
+  `@testing-library/user-event` (dev) to `@finni/web`; `test:e2e` script; Vitest scoped to `src/`.

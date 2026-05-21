@@ -145,4 +145,12 @@ export default tseslint.config(
     files: ['**/*.styles.{ts,tsx}', '**/theme/**/*.{ts,tsx}'],
     rules: styleValueRules,
   },
+  {
+    // D42: the single sanctioned home for raw token values. antd's ThemeConfig seed needs
+    // real hex (its ramp algorithm can't derive from a var()) and real numbers (numeric
+    // tokens are typed `number`, not string), so the token *source* is the one place C6's
+    // "reference a token" cannot apply — it IS the token. Narrow, like D36/C8. C8 still holds.
+    files: ['**/theme/finniTokens.ts'],
+    rules: { '@typescript-eslint/no-magic-numbers': 'off', 'no-restricted-syntax': ['error', noNewDateRule] },
+  },
 );

@@ -182,3 +182,37 @@ graded (UI/UX and code quality for patient management).
   project name `finni` (no longer adopts other projects) and host port **5434** (5432/5433 were
   taken on the dev machine) → container 5432, matched in `.env.example`. Tests use pglite; dev
   can alternatively point `DATABASE_URL` at Neon.
+
+### Step 3 — Design system, atoms, kitchen sink
+- **D42 — A single token-source file is exempt from the C6 hex/number lint** (`theme/finniTokens.ts`).
+  C6 lints `theme/**` for raw hex/px/magic-numbers (D31), but antd's `ThemeConfig` seed genuinely
+  *needs* real values: its ramp algorithm cannot derive hover/active shades from a `var()`, and
+  numeric tokens (`borderRadius`) are typed `number`, so a `var()` string would require `any`
+  (banned, C1). The token source is therefore the one place C6's "reference a token" cannot apply —
+  it *is* the token. A narrow ESLint override lifts only `no-magic-numbers` + the hex/px rules for
+  that one file (C8's `new Date` ban still holds), exactly parallel to D36 (enum redeclare) and C8
+  (DateTimeUtil). Every other `theme/**` and `*.styles.ts` file stays fully linted and references
+  tokens or CSS vars. Bounded amendment to D31's enforcement scope; C6's intent (no raw values in
+  component styles) is preserved.
+- **D43 — antd semantic colors are decoupled from the status-tag colors.** The six status colors
+  (D23) are tuned for AA text on a light tag tint, which makes them dark/low-luminance; feeding
+  those same values into antd's `colorSuccess/Warning/Error/Info` seeds produced muddy derived
+  alert backgrounds. So semantic colors get their own brighter, warm-brand values, kept separate
+  from the status palette. antd's generator still yields a greyed tint-1 for green seeds in this
+  theme, so `colorSuccessBg`/`colorSuccessBorder` are set explicitly (the other three derive
+  cleanly). All status pairs are proven AA by `a11y/statusColorContrast.test.ts`, which also
+  asserts the D22 orange-ink button (white-on-orange fails, ink passes).
+- **D44 — Preferences in Zustand + `persist` → localStorage; theme applied via antd-style.**
+  `usePreferencesStore` (palette/density/font/scale, seeded from `DEFAULT_USER_PREFERENCES`)
+  persists to localStorage (§9/§10, prefs only — never PHI). `FinniThemeProvider` maps the store to
+  an antd `ThemeConfig` (antd-style `ThemeProvider`, retaining the D24 `createStyles`/`ConfigProvider`
+  mechanism) and injects per-palette status/radius/spacing **`:root` CSS vars** at runtime for custom
+  primitives. Compact density composes `compactAlgorithm` over `defaultAlgorithm` (§4).
+- **D45 — Client avatar flag is `VITE_USE_HEADSHOTS`.** Vite exposes only `VITE_`-prefixed env to
+  the browser, so the web client reads `VITE_USE_HEADSHOTS` while the backend keeps `USE_HEADSHOTS`
+  (§8); `.env.example` documents both and either set to `false` forces the silhouette fallback.
+- **D46 — The kitchen sink is the Playwright visual-regression surface.** Two committed baselines
+  (default palette; eye-strain + comfortable density) snapshot every primitive in every state. The
+  eye-strain snapshot drives the live store controls, so it also *exercises* the store→theme path
+  rather than asserting the controls exist. Playwright owns `apps/web/e2e/`; Vitest is scoped to
+  `src/` so the two runners never collide. Full happy-path E2E lands in Step 6.

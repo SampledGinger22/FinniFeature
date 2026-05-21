@@ -7,6 +7,3 @@ export * from '@/constants/appConstants';
 export * from '@/datetime/DateTimeUtil';
 export * from '@/schemas/zodEnum';
 export * from '@/schemas/patientSchemas';
-
-// Retained until the real app shell replaces the Step 0 placeholder (Step 3).
-export const SHARED_PACKAGE_NAME = '@finni/shared';
