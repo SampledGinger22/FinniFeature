@@ -101,3 +101,23 @@ graded (UI/UX and code quality for patient management).
 ### Tooling
 - **D30 — `.claude/` agents, skills, hooks committed to the repo** so enforcement travels
   with the code and applies to every contributor. See `03-agent-skill-hook-proposal.md`.
+- **D31 — C6 (`no-magic-numbers`/hex/px) is lint-enforced on style-convention files only**
+  (`**/*.styles.{ts,tsx}`, `**/theme/**`). "A style" is not AST-detectable globally without
+  false positives; since styling is centralized (C9), raw values may live only in those
+  files, so scoping the lint there enforces C6 everywhere it legitimately applies. Broader
+  enforcement (e.g. all `.tsx`) was rejected as too noisy; the `convention-reviewer` agent
+  (A1) backstops inline cases. See spec §4.
+- **D32 — Commit directly to `main` for this solo demo; commit messages stand in for PRs**
+  so a repository reviewer reads the rationale inline. The H2 dangerous-op guard's
+  main-commit block is therefore dropped (its force-push / secrets / DROP / dayjs-Date
+  guards remain). Trade-off: no PR-gated review step; acceptable for a single-builder demo,
+  revisit if the project gains contributors.
+
+### Build process
+- **D33 — React pinned to 18.3, not 19.** First-class antd v5 support without the
+  React-19 compatibility patch package; revisit when antd lands (Step 3) if 19 is wanted.
+- **D34 — `@finni/shared` exports TypeScript source** (no build step); consumers (Vite,
+  Vitest, Vercel/esbuild) transpile it and `tsc` resolves it via package `exports`. Avoids
+  cross-package build ordering. `vite` is pinned to v6 via an `overrides` entry because
+  `vitest@2` otherwise pulls a second `vite@5`, clashing plugin types under
+  `exactOptionalPropertyTypes`.

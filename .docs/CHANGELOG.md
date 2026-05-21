@@ -32,4 +32,9 @@
   connection + `PHI_ENCRYPTION_KEY` + `USE_HEADSHOTS` without committing secrets.
 - React pinned to 18.3 and `vite` deduped to v6 via an `overrides` entry. *Why:* 18.3 has
   first-class antd v5 support without the React-19 compat patch; a single vite version avoids
-  cross-version plugin type clashes under `exactOptionalPropertyTypes`.
+  cross-version plugin type clashes under `exactOptionalPropertyTypes`. (D33, D34)
+- Recorded D31 (C6 lint scoped to style-convention files), D32 (commit directly to main;
+  commit messages stand in for PRs), D33 (React 18.3), D34 (shared exports TS source; vite
+  pinned via overrides). *Why:* decisions made during Step 0 setup, surfaced and approved.
+  Note: D32's matching removal of H2's main-commit block is pending (the harness blocks the
+  agent from editing its own guard hooks — left for the human to apply).
