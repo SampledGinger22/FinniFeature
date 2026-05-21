@@ -10,6 +10,13 @@ import { zodEnum } from '@/schemas/zodEnum';
 const MIN_PHONE_DIGITS = 7;
 const DATE_ONLY_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
+// DOB rule, shared by create and update so the calendar/future checks live in one place.
+const dateOfBirthSchema = z
+  .string()
+  .regex(DATE_ONLY_PATTERN, 'Date of birth must be YYYY-MM-DD')
+  .refine((value) => DateTimeUtil.isValidDate(value), 'Invalid calendar date')
+  .refine((value) => !DateTimeUtil.isFuture(value), 'Date of birth cannot be in the future');
+
 export const addressCreateSchema = z.object({
   type: zodEnum(AddressType).default(AddressType.Home),
   isPrimary: z.boolean().default(false),
@@ -47,11 +54,7 @@ export const patientCreateSchema = z.object({
   firstName: z.string().trim().min(1),
   middleName: z.string().trim().min(1).optional(),
   lastName: z.string().trim().min(1),
-  dateOfBirth: z
-    .string()
-    .regex(DATE_ONLY_PATTERN, 'Date of birth must be YYYY-MM-DD')
-    .refine((value) => DateTimeUtil.isValidDate(value), 'Invalid calendar date')
-    .refine((value) => !DateTimeUtil.isFuture(value), 'Date of birth cannot be in the future'),
+  dateOfBirth: dateOfBirthSchema,
   status: zodEnum(PatientStatus).default(PatientStatus.Inquiry),
   hasInsurance: z.boolean().default(false),
   addresses: z.array(addressCreateSchema).min(1, 'At least one address is required'),
@@ -64,6 +67,19 @@ export const patientCreateSchema = z.object({
     ),
 });
 
+// Edit-drawer contract: the core patient fields (addresses/contacts edit separately, later).
+// The same schema validates the edit form and the PATCH handler. middleName nullable so it
+// can be cleared; everything required here because the form submits the full current record.
+export const patientUpdateSchema = z.object({
+  firstName: z.string().trim().min(1),
+  middleName: z.string().trim().min(1).nullable(),
+  lastName: z.string().trim().min(1),
+  dateOfBirth: dateOfBirthSchema,
+  status: zodEnum(PatientStatus),
+  hasInsurance: z.boolean(),
+});
+
 export type AddressCreateInput = z.infer<typeof addressCreateSchema>;
 export type ContactMethodCreateInput = z.infer<typeof contactMethodCreateSchema>;
 export type PatientCreateInput = z.infer<typeof patientCreateSchema>;
+export type PatientUpdateInput = z.infer<typeof patientUpdateSchema>;

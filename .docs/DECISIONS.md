@@ -216,3 +216,27 @@ graded (UI/UX and code quality for patient management).
   eye-strain snapshot drives the live store controls, so it also *exercises* the store→theme path
   rather than asserting the controls exist. Playwright owns `apps/web/e2e/`; Vitest is scoped to
   `src/` so the two runners never collide. Full happy-path E2E lands in Step 6.
+
+### Step 4 — Vertical slice (caseload + edit drawer)
+- **D47 — Local API transport is a zero-config dev server; the Vercel functions stay the deploy
+  path.** There is no Vercel CLI locally and the spec forbids a long-running prod server, so
+  `@finni/api` gains a Node-`http` dev server (`bun run dev`) that serves the same framework-agnostic
+  route-core (`src/http/patientRoutes.ts`) the Vercel functions adapt. It uses Postgres when
+  `DATABASE_URL` is set, else spins up an in-memory **pglite seeded on boot** — so `bun run dev` and
+  the demo run with zero config or secrets. Vite proxies `/api` → the dev server. The HTTP contract
+  (parse → validate → one service call → shape result) lives in exactly one place (§5).
+- **D48 — pglite uses an ephemeral random PHI key; no key is ever committed.** pglite is always
+  in-process and fresh, so the field cipher key only has to be consistent within the run. `@/db/pglite`
+  honors `PHI_ENCRYPTION_KEY` from the environment if present, else generates a random 32-byte key at
+  startup. Replaces the previously hardcoded test-key literal (tests + dev demo still exercise the real
+  cipher; the repo holds no key).
+- **D49 — `patientUpdateSchema` (shared) validates the edit form and the PATCH handler** — one rule
+  set, two consumers (extends D15 to edits). The slice edits the core patient fields
+  (name/status/insurance); **DOB is shown read-only** in the drawer because an editable picker is
+  dayjs-bound and C8 confines dayjs to `DateTimeUtil` — a DateTimeUtil-encapsulated date control is a
+  later upgrade. Addresses/contacts edit separately, also later.
+- **D50 — TanStack Query owns server data; react-router added for two routes.** `usePatientListQuery`
+  /`useUpdatePatientMutation` with a key factory; a successful edit invalidates the list so it
+  refreshes instantly (§9, the "rapid refresh" requirement, not hand-rolled). `react-router-dom`
+  routes `/` → caseload (the app) and `/kitchen-sink` → the QA/visual-regression surface; the query
+  client uses the shared cache TTL and disables refetch-on-window-focus.

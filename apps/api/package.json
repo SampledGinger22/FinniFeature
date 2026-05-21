@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "dev": "bun run scripts/devServer.ts",
     "type-check": "tsc --noEmit",
     "test": "vitest run --passWithNoTests",
     "db:generate": "drizzle-kit generate",

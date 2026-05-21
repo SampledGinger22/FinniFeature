@@ -3,8 +3,8 @@ import { PatientStatus } from '@finni/shared';
 import { useStatusTagStyles } from '@/components/atoms/StatusTag.styles';
 
 // Display labels for the six-state lifecycle (§6.4). UI copy lives in the web layer; the shared
-// package owns the enum values, not their presentation.
-const patientStatusLabels: Record<PatientStatus, string> = {
+// package owns the enum values, not their presentation. Exported so the edit-drawer select reuses it.
+export const patientStatusLabels: Record<PatientStatus, string> = {
   [PatientStatus.Inquiry]: 'Inquiry',
   [PatientStatus.Waitlisted]: 'Waitlisted',
   [PatientStatus.Onboarding]: 'Onboarding',

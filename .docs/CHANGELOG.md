@@ -106,3 +106,26 @@
   a `window.matchMedia` test stub for antd under jsdom.
 - Tooling: added `antd`, `antd-style`, `zustand` (deps) and `@playwright/test`,
   `@testing-library/user-event` (dev) to `@finni/web`; `test:e2e` script; Vitest scoped to `src/`.
+
+### Vertical slice — caseload + edit drawer (Step 4)
+- Added `patientUpdateSchema` + `PatientUpdateInput` to `@finni/shared` (extracted a shared
+  `dateOfBirthSchema`): the same schema validates the edit form and the PATCH handler (D49, extends D15).
+- Added the API HTTP layer: framework-agnostic route-core (`src/http/patientRoutes.ts` — list/get/update,
+  Active scope by default so PHI never leaks), thin Vercel functions (`api/patients/index.ts`,
+  `api/patients/[id].ts`), and a zero-config dev server (`src/http/devServer.ts` + `scripts/devServer.ts`,
+  `dev` script) that serves the same route-core over Node `http` — Postgres when `DATABASE_URL` is set,
+  else an in-memory pglite seeded on boot (D47). 5 route-core tests on pglite.
+- Refactored the seed into a reusable `seedPatients(db)` (`src/seed/seedData.ts`); the CLI is now a thin
+  entry. Moved the pglite bootstrap to `@/db/pglite` and switched its PHI key to an **ephemeral random
+  key** (no key committed; honors env if set) — replacing the hardcoded test-key literal (D48).
+- Added the web data layer: TanStack Query client (shared cache TTL, refetch-on-focus off), typed API
+  client (`api/patientsApi.ts`), and query hooks with a key factory; a successful edit invalidates the
+  list so it refreshes instantly (D50, §9).
+- Added components: `PatientCard` (avatar, derived age, status, locality, insurance), `CaseloadView`
+  (organism with explicit loading/error/empty/data states, §8), and `PatientEditDrawer` (right drawer,
+  shared-Zod validation, mutation + toast; DOB read-only for now). Wired `CaseloadPage`; `FinniRoot` now
+  routes `/` → caseload and `/kitchen-sink` → the QA surface via react-router (D50).
+- Added 8 web component tests (card/view/drawer) + 2 Playwright caseload E2E (edit happy-path through the
+  dev API; shared-schema validation). Kitchen-sink snapshots moved to `/kitchen-sink` (unchanged pixels).
+- Tooling: added `@tanstack/react-query`, `react-router-dom` (web deps); `@finni/api` `dev` script; Vite
+  dev proxy `/api` → the dev server; Playwright starts both dev servers.

@@ -62,6 +62,12 @@ Vercel runs the static frontend and the serverless functions. There is **no
 long-running Express server** — route handlers are thin Vercel functions that delegate
 to the service layer. Docker is for reproducible local development, not deployment.
 
+**Local dev transport (D47).** Since there is no Vercel runtime locally, `@finni/api` ships a
+small Node-`http` dev server (`bun run dev`, Vite proxies `/api` to it) that adapts the *same*
+framework-agnostic route-core the Vercel functions use. It runs against Postgres when
+`DATABASE_URL` is set, else an in-memory pglite seeded on boot — so the app runs with zero config
+or secrets. This is dev tooling only; production is the serverless functions.
+
 ---
 
 ## 3. Repository structure (locked)
