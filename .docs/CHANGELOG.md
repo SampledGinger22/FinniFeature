@@ -39,3 +39,22 @@
 - Removed H2's main-commit block to match D32 (force-push / secrets / DROP / dayjs-Date
   guards retained). *Why:* commits go straight to main for this solo demo; the branch guard
   no longer applies.
+
+### Shared package (Step 1)
+- Added all domain enums (PatientStatus×6, AddressType, ContactMethodType, ContactLabel) and
+  preference enums (FontFamily incl. dyslexic, FontScale, ThemePalette, Density) in the
+  const-object union pattern (§6.4). Preference enum *values* were chosen here (e.g. FontFamily
+  = sans/serif/dyslexic, Density = compact/comfortable).
+- Added entity transport types (Patient, Address, ContactMethod, PatientWithRelations) and
+  UserPreferences. camelCase TS / snake_case DB mapping recorded as D35.
+- Added app constants: SOFT_DELETE_PURGE_DAYS=30, pagination + cache defaults, DEFAULT_COUNTRY,
+  DEFAULT_USER_PREFERENCES.
+- Added DateTimeUtil (the only dayjs/Date home, C8): calculateAge, formatDob (zoneless),
+  toUserZone, resolveTimezone, nowUtc, isValidDate, isFuture. Age uses dayjs year-diff; leap-day
+  convention documented (D38).
+- Added the shared Zod creation schemas (§6.5): addressCreateSchema, contactMethodCreateSchema,
+  patientCreateSchema — one rule set for form + API. Requires first/last name, valid past DOB,
+  ≥1 address with region, ≥1 email contact. Defaults + validation recorded as D38.
+- Added 32 unit tests (DateTimeUtil age boundaries incl. leap day; Zod valid/invalid cases).
+- Resolved the §6.4-vs-C4 lint collision (D36) and switched shared to a built package (D37,
+  supersedes D34) so consumers can resolve it. Tooling: added `tsc-alias`.

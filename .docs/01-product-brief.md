@@ -7,7 +7,7 @@
 ## The one-sentence version
 
 A patient management dashboard for ABA care providers that makes finding the right
-patients effortless — built around care for the *provider*, not just administration.
+patients effortless — built around care for the _provider_, not just administration.
 
 ## Who this is for
 
@@ -19,8 +19,8 @@ families never see it.
 ## The problem we are solving
 
 Providers have told us their existing dashboards make patient management painful. The
-specific pain is not *storing* patient data — every system does that. The pain is
-*finding* the right patients quickly. A provider needs to answer questions like:
+specific pain is not _storing_ patient data — every system does that. The pain is
+_finding_ the right patients quickly. A provider needs to answer questions like:
 
 > "Who are all my patients in intake who live in New York and are under 30?"
 
@@ -41,11 +41,12 @@ person doing emotionally demanding work. That belief shows up in concrete choice
   own brand — plus an eye-strain palette and dyslexia-friendly font option for the
   long hours providers actually work.
 
-This is the thing a reviewer should *feel*, not just read.
+This is the thing a reviewer should _feel_, not just read.
 
 ## What a provider can do (v1)
 
 ### Find patients fast — the hero feature
+
 Filter the caseload by status, location, and age simultaneously, with live result
 counts as filters are applied. The "intake patients in New York under 30" question is
 answerable in seconds. Three ways to look at the same caseload:
@@ -59,6 +60,7 @@ All three read from the same data and the same filters — switching views never
 your place or your filters.
 
 ### Manage patient records
+
 - **Add a patient** via a full-height panel that slides up from the bottom.
 - **Edit a patient** via a panel that slides in from the right, so the list stays
   visible behind it.
@@ -67,43 +69,47 @@ your place or your filters.
   insurance-on-file indicator.
 
 ### See the lifecycle clearly
+
 Every patient sits in one of six stages, shown as a colored tag everywhere they appear:
 
-| Stage | Meaning |
-|---|---|
-| Inquiry | First contact; not yet qualified |
-| Waitlisted | Qualified, awaiting capacity |
-| Onboarding | Actively being set up for care |
-| Active | Receiving care |
-| Paused | Temporarily not being seen (reversible) |
-| Churned | No longer with the practice |
+| Stage      | Meaning                                 |
+| ---------- | --------------------------------------- |
+| Inquiry    | First contact; not yet qualified        |
+| Waitlisted | Qualified, awaiting capacity            |
+| Onboarding | Actively being set up for care          |
+| Active     | Receiving care                          |
+| Paused     | Temporarily not being seen (reversible) |
+| Churned    | No longer with the practice             |
 
-> *Note on the lifecycle:* the original brief named four stages (Inquiry, Onboarding,
+> _Note on the lifecycle:_ the original brief named four stages (Inquiry, Onboarding,
 > Active, Churned). We added **Waitlisted** and **Paused** because real ABA practices
 > live in those states — long waitlists are endemic to the field, and patients
 > routinely pause for travel, insurance lapses, or medical reasons. This is recorded
 > as a deliberate decision, not an accident. See the decision log.
 
 ### Archive and remove, safely
+
 - **Archive** hides an inactive patient from the default view without deleting
   anything — fully reversible.
-- **Delete** is a *soft* delete: the patient disappears from the app but is recoverable
+- **Delete** is a _soft_ delete: the patient disappears from the app but is recoverable
   for 30 days before being permanently purged. This protects against accidental loss of
   medical records.
 
 ### Personalize the workspace
+
 A settings area lets the provider choose font size, font family (including a
 dyslexia-friendly option), a standard or reduced-eye-strain color palette, layout
 density, and timezone. Preferences persist on their device between sessions.
 
 ### Demo controls
+
 Because this is a demonstration build, a clearly-separated "Demo controls" area lets a
 reviewer reset the data: **purge** expired deletions (the real lifecycle behavior made
 visible), **reseed** fresh sample data, or go to a **blank slate** to see how the app
 handles an empty caseload gracefully. These controls would not exist in a production
 build.
 
-## What is intentionally *not* in v1
+## What is intentionally _not_ in v1
 
 We scoped wide, then deliberately narrowed based on the founder's clarifications. The
 following are documented as planned next-iteration work, not built now:
@@ -117,11 +123,3 @@ following are documented as planned next-iteration work, not built now:
 
 Showing this list is itself part of the product thinking: it demonstrates that scope
 was a choice, with reasoning, rather than an oversight.
-
-## Why this will impress
-
-1. The headline filter question is answered effortlessly — the exact thing the buyer
-   said they were evaluating.
-2. It feels like it was built by someone who understands ABA care, not just CRUD forms.
-3. It is a *foundation*: every architectural decision underneath is the kind you would
-   want before iterating, not a throwaway demo. The next round can build on it directly.

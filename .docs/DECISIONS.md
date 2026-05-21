@@ -120,4 +120,28 @@ graded (UI/UX and code quality for patient management).
   Vitest, Vercel/esbuild) transpile it and `tsc` resolves it via package `exports`. Avoids
   cross-package build ordering. `vite` is pinned to v6 via an `overrides` entry because
   `vitest@2` otherwise pulls a second `vite@5`, clashing plugin types under
-  `exactOptionalPropertyTypes`.
+  `exactOptionalPropertyTypes`. *(Superseded in part by D37 — see below.)*
+
+### Step 1 — Shared package
+- **D35 — TS entity shapes are camelCase; DB columns are snake_case.** The repository/Drizzle
+  layer maps between them. camelCase is the TS idiom; snake_case is the SQL idiom. Documented
+  so the boundary mapping is expected, not a surprise.
+- **D36 — `@typescript-eslint/no-redeclare` is scope-disabled in `**/enums/**`.** The §6.4
+  const-object union pattern deliberately pairs a value and a type of the same name, which the
+  rule false-flags. The exception is the narrowest possible (enum files only); `tsc` still
+  catches genuine illegal redeclaration there, and `no-shadow` + the A1 convention-reviewer
+  still backstop C4's global-uniqueness intent everywhere. Resolves the §6.4-vs-C4 collision.
+- **D37 — `@finni/shared` is built (`tsc` + `tsc-alias`) to `dist`; consumers import the
+  build.** Supersedes D34's no-build decision. A source-exported package cannot expose its
+  internal `@/` alias to consumers (each consumer's tsc/Vite resolves `@/` against its own
+  `src`). Building rewrites `@/` to relative paths in `dist`, so the package keeps the `@/`
+  convention and its subdirectory structure while remaining consumable by tsc, Vite, and
+  Vercel. Turbo's `^build` dependency orders the build before dependents' type-check/dev.
+  The D34 `vite` override still stands. Trade-off: shared must be built before web dev/check
+  (handled by turbo); acceptable for a scalable foundation.
+- **D38 — Creation defaults and validation (Zod, §6.5).** New patients default to
+  `status = Inquiry`, `country = US`, `hasInsurance = false`, address `type = Home`, contact
+  `label = Mobile`, `is_primary = false`. Email contacts are email-validated; phone contacts
+  require ≥7 digits; DOB must be a real, non-future `YYYY-MM-DD`. Age uses dayjs year-diff,
+  so a Feb-29 birthday ages on **Feb 28** in non-leap years (dayjs clamps `+1yr` to Feb 28) —
+  a defined, documented convention rather than an accident.

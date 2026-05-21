@@ -113,6 +113,12 @@ export default tseslint.config(
     languageOptions: { globals: globals.node },
   },
   {
+    // The const-object union enum pattern (§6.4) deliberately pairs a value and a type of
+    // the same name; no-redeclare false-flags it. tsc still catches real redeclaration (D36).
+    files: ['**/enums/**/*.ts'],
+    rules: { '@typescript-eslint/no-redeclare': 'off' },
+  },
+  {
     // The single sanctioned home for dayjs and raw Date (rule C8).
     files: ['**/DateTimeUtil.ts'],
     rules: {

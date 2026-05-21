@@ -89,6 +89,11 @@ finni-feature/
 schemas, and `DateTimeUtil`. Both `web` and `api` import from it. **An entity's shape is
 defined once, here.** This is what makes "no drift" structurally true rather than hoped.
 
+The package keeps the `@/` alias and a subdirectory layout internally, and is **built**
+(`tsc` + `tsc-alias`) to `dist` so consumers can resolve it — a source export cannot expose
+its own `@/` alias to a consumer's compiler (D37). Turbo's `^build` orders the build before
+dependents' type-check and dev.
+
 ---
 
 ## 4. Code conventions (locked, mostly enforced)
@@ -260,6 +265,10 @@ configured there once (utc + timezone plugins registered).
 | Rendering | Convert to user zone: settings override → else browser default (`Intl.DateTimeFormat().resolvedOptions().timeZone`). |
 | DOB | Stored and rendered as a plain date, **no zone conversion** (a birthday must not shift across midnight). Documented inline so no one "fixes" it into a bug. |
 | Age | `calculateAge(dob)` — the single source for both display and filtering. |
+
+`DateTimeUtil` exposes: `calculateAge`, `formatDob` (zoneless), `toUserZone`,
+`resolveTimezone`, `nowUtc`, `isValidDate`, `isFuture`. Age uses dayjs year-diff, so a Feb-29
+birthday ages on Feb 28 in non-leap years (documented convention, D38).
 
 ---
 
