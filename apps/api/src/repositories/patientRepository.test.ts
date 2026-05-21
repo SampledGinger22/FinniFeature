@@ -1,14 +1,9 @@
-import { fileURLToPath } from 'node:url';
 import { beforeAll, beforeEach, describe, expect, it } from 'vitest';
-import { PGlite } from '@electric-sql/pglite';
 import { eq } from 'drizzle-orm';
-import { drizzle } from 'drizzle-orm/pglite';
-import { migrate } from 'drizzle-orm/pglite/migrator';
 import { uuidv7 } from 'uuidv7';
 import { AddressType, ContactLabel, ContactMethodType, DateTimeUtil, PatientStatus } from '@finni/shared';
 import type { AppDatabase } from '@/db/client';
 import { patient } from '@/db/schema';
-import * as dbSchema from '@/db/schema';
 import { RepositoryScope } from '@/enums/repositoryScope';
 import { insertAddressRow } from '@/repositories/addressRepository';
 import { insertContactMethodRow } from '@/repositories/contactMethodRepository';
@@ -21,18 +16,12 @@ import {
   setPatientArchived,
 } from '@/repositories/patientRepository';
 import type { PatientInsert } from '@/repositories/patientRepository';
-
-// A real 32-byte key so the field-level cipher runs for real in tests (not a mock).
-process.env.PHI_ENCRYPTION_KEY = '00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff';
+import { createMigratedPgliteDb } from '@/test/testDb';
 
 let db: AppDatabase;
 
 beforeAll(async () => {
-  const client = new PGlite();
-  // Concrete pglite type for the migrator; repositories consume it as the broader AppDatabase.
-  const pgliteDb = drizzle(client, { schema: dbSchema });
-  await migrate(pgliteDb, { migrationsFolder: fileURLToPath(new URL('../../drizzle', import.meta.url)) });
-  db = pgliteDb;
+  db = await createMigratedPgliteDb();
 });
 
 beforeEach(async () => {

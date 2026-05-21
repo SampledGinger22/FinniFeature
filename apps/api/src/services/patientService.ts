@@ -21,8 +21,11 @@ import type { PatientUpdate } from '@/repositories/patientRepository';
 // Business logic + transaction ownership (spec §5). UUID v7 PKs are generated here.
 
 // Create patient + addresses + contacts atomically; a failed child insert rolls back all.
-export async function createPatient(input: PatientCreateInput): Promise<PatientWithRelations> {
-  const db = getDb();
+// db is injectable so tests can run the real transaction against an in-process pglite engine.
+export async function createPatient(
+  input: PatientCreateInput,
+  db: AppDatabase = getDb(),
+): Promise<PatientWithRelations> {
   const patientId = uuidv7();
   const addresses = ensurePrimaryAddress(input.addresses);
   const contactMethods = ensurePrimaryEmail(input.contactMethods);
@@ -68,37 +71,44 @@ export async function createPatient(input: PatientCreateInput): Promise<PatientW
   return created;
 }
 
-export async function updatePatient(id: string, patch: PatientUpdate): Promise<PatientWithRelations | null> {
-  const db = getDb();
+export async function updatePatient(
+  id: string,
+  patch: PatientUpdate,
+  db: AppDatabase = getDb(),
+): Promise<PatientWithRelations | null> {
   await updatePatientRow(db, id, patch);
   return getPatientById(db, id, RepositoryScope.IncludeArchived);
 }
 
-export async function archivePatient(id: string): Promise<void> {
-  await setPatientArchived(getDb(), id, true);
+export async function archivePatient(id: string, db: AppDatabase = getDb()): Promise<void> {
+  await setPatientArchived(db, id, true);
 }
 
-export async function unarchivePatient(id: string): Promise<void> {
-  await setPatientArchived(getDb(), id, false);
+export async function unarchivePatient(id: string, db: AppDatabase = getDb()): Promise<void> {
+  await setPatientArchived(db, id, false);
 }
 
-export async function softDeletePatient(id: string): Promise<void> {
-  await markPatientDeleted(getDb(), id);
+export async function softDeletePatient(id: string, db: AppDatabase = getDb()): Promise<void> {
+  await markPatientDeleted(db, id);
 }
 
-export async function restorePatient(id: string): Promise<void> {
-  await clearPatientDeleted(getDb(), id);
+export async function restorePatient(id: string, db: AppDatabase = getDb()): Promise<void> {
+  await clearPatientDeleted(db, id);
 }
 
-export async function getPatientList(scope: RepositoryScope): Promise<PatientWithRelations[]> {
-  return listPatients(getDb(), scope);
+export async function getPatientList(
+  scope: RepositoryScope,
+  db: AppDatabase = getDb(),
+): Promise<PatientWithRelations[]> {
+  return listPatients(db, scope);
 }
 
 export async function getPatientDetail(
   id: string,
   scope: RepositoryScope,
+  db: AppDatabase = getDb(),
 ): Promise<PatientWithRelations | null> {
-  return getPatientById(getDb(), id, scope);
+  return getPatientById(db, id, scope);
 }
 
 // Remove records past the 30-day window (spec §12). In production this is a scheduled job;
