@@ -1,0 +1,36 @@
+{
+  "name": "finni-feature",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Provider-facing ABA patient CRM for Finni Health.",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "eslint .",
+    "type-check": "turbo run type-check",
+    "test": "turbo run test",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.17.0",
+    "@types/node": "^22.10.2",
+    "eslint": "^9.17.0",
+    "globals": "^15.14.0",
+    "husky": "^9.1.7",
+    "turbo": "^2.3.3",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.18.1"
+  },
+  "overrides": {
+    "vite": "^6.0.5"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "bun@1.3.5"
+}

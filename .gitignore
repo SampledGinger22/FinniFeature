@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+dist/
+build/
+.turbo/
+*.tsbuildinfo
+
+# Vercel
+.vercel/
+
+# Env / secrets (never commit) — H2 hook also guards these
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+bun-debug.log*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Test / coverage
+coverage/
+playwright-report/
+test-results/
+
+# Local Postgres volume (docker)
+docker/pgdata/
