@@ -252,6 +252,23 @@ Patient creation requires: `first_name`, `last_name`, `date_of_birth`, **≥1 em
 **≥1 address with `region` (state)**. Everything else optional. Frontend form and API
 handler use the *same* Zod schema — one rule set, two consumers.
 
+### 6.6 PHI encryption vs. queryability (D39)
+
+Field-level encryption and the hero filter pull in opposite directions: you cannot B-tree
+index an AES-encrypted column, so age (from `date_of_birth`) and location (`region`/`city`)
+filtering/sorting would break if those columns were field-encrypted. The resolution (Option
+A, D39):
+
+| Column(s) | Treatment | Rationale |
+|---|---|---|
+| `first_name`, `middle_name`, `last_name`, `contact_method.value`, `address.line1`, `line2`, `postal_code` | **Field-level encrypted** (AES-256-GCM, repo layer) | High-identifiability free-text PHI; never a filter/sort target, so encrypting is free on the hero path. |
+| `date_of_birth`, `address.region`, `address.city` | **Queryable** (at-rest encryption + scoped queries + never logged) | Power exact age range + sort and the location filter; must stay indexable. |
+
+Encryption/decryption happens only in the repository layer. Decryption is applied to the
+**already-filtered, paginated** result set (O(page), not O(table)), so the design holds at
+scale, not just at demo-seed size. Name search (if later needed) would require a blind/HMAC
+index — deferred.
+
 ---
 
 ## 7. Dates & time (locked)
@@ -348,8 +365,13 @@ hosting, access controls). It implements HIPAA-*conscious patterns* because they
 correct baseline for a system meant to be iterated into something real:
 
 - **Encryption at rest** on the database.
-- **Field-level encryption** on PHI columns (names, DOB, contact values) — encrypt/decrypt
-  in the repository layer so services and handlers never touch ciphertext.
+- **Field-level encryption** on the high-identifiability free-text PHI — `first_name`,
+  `middle_name`, `last_name`, `contact_method.value`, `address.line1/line2/postal_code` —
+  encrypt/decrypt in the repository layer so services and handlers never touch ciphertext
+  (AES-256-GCM, per-value IV). **`date_of_birth`, `address.region`, and `address.city` are
+  kept queryable** (encryption-at-rest + scoped queries + no-logging) because they power the
+  exact age/location hero filter and cannot be both encrypted and indexed. This split is
+  decision **D39** — see §6.6; it is a deliberate, bounded deviation from "encrypt DOB".
 - **No PHI in logs.** Winston runs a redaction format that scrubs known PHI fields before
   any transport; code logs identifiers (patient UUID), never contents.
 - **No PHI in client storage.** localStorage holds preferences only, never patient data.

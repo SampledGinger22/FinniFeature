@@ -58,3 +58,10 @@
 - Added 32 unit tests (DateTimeUtil age boundaries incl. leap day; Zod valid/invalid cases).
 - Resolved the §6.4-vs-C4 lint collision (D36) and switched shared to a built package (D37,
   supersedes D34) so consumers can resolve it. Tooling: added `tsc-alias`.
+
+### Data layer (Step 2)
+- Recorded the PHI-encryption-vs-queryable-filter resolution (D39, Option A) in spec §6.6 +
+  §11 before writing schema: field-encrypt names/contact values/street lines; keep
+  date_of_birth + region + city queryable (at-rest + scoped) so the exact age/location hero
+  filter and sort work at scale. *Why:* a B-tree index can't sit on an encrypted column;
+  this confines the deviation to one documented, bounded concession (queryable DOB).

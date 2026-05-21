@@ -145,3 +145,27 @@ graded (UI/UX and code quality for patient management).
   require ≥7 digits; DOB must be a real, non-future `YYYY-MM-DD`. Age uses dayjs year-diff,
   so a Feb-29 birthday ages on **Feb 28** in non-leap years (dayjs clamps `+1yr` to Feb 28) —
   a defined, documented convention rather than an accident.
+
+### Step 2 — Compliance vs. queryability
+- **D39 — PHI encryption split so the hero filter stays exact at scale (Option A).** Resolves
+  the collision between §11 field-level encryption and the §1 hero filter (age + location).
+  - **Field-level encrypted** (AES-256-GCM, per-value random IV, authenticated; encrypt-on-
+    write / decrypt-on-read in the *repository layer only*): `first_name`, `middle_name`,
+    `last_name`, `contact_method.value`, `address.line1`, `address.line2`, `address.postal_code`.
+    These are high-identifiability free-text PHI and are never filter/sort targets, so
+    encrypting them costs nothing on the hero path.
+  - **Queryable** (stored as normal indexed columns, protected by DB encryption-at-rest +
+    scoped repository queries + the no-PHI-in-logs rule): `date_of_birth`, `address.region`,
+    `address.city`. These power exact age range + sort and the location filter; a B-tree index
+    on encrypted bytes is impossible, so they must remain queryable.
+  - **Why this holds at scale (not a 50-row illusion):** filters/sorts hit B-tree indexes on
+    unencrypted columns — same query plan at 50 or 500k rows. Decryption cost scales with the
+    *paginated page returned*, not table size (O(page)). Rejected the decrypt-in-repository
+    alternative precisely because it is O(n) full-scan.
+  - **Bounded deviation:** §11 literally said "encrypt DOB"; we keep DOB queryable instead,
+    because field-encrypting it breaks the headline exact-age filter *and* sort. This is the
+    single, documented concession. Posture for identified PHI = at-rest encryption + access
+    scoping + audit + minimum-necessary, with field-level encryption as defense-in-depth on
+    the highest-risk free-text.
+  - **Deferred:** searching patients *by name* would need a blind/HMAC index (deterministic
+    lookup over encrypted names); out of scope for v1's status/location/age hero filter.
