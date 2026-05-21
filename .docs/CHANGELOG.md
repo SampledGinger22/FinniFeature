@@ -36,5 +36,6 @@
 - Recorded D31 (C6 lint scoped to style-convention files), D32 (commit directly to main;
   commit messages stand in for PRs), D33 (React 18.3), D34 (shared exports TS source; vite
   pinned via overrides). *Why:* decisions made during Step 0 setup, surfaced and approved.
-  Note: D32's matching removal of H2's main-commit block is pending (the harness blocks the
-  agent from editing its own guard hooks — left for the human to apply).
+- Removed H2's main-commit block to match D32 (force-push / secrets / DROP / dayjs-Date
+  guards retained). *Why:* commits go straight to main for this solo demo; the branch guard
+  no longer applies.

@@ -1,7 +1,8 @@
 // H2 — Dangerous-operation guard. Blocks destructive or out-of-policy actions before
-// they run: force-push, raw DROP/TRUNCATE, direct commits to main, writes to secrets,
-// and dayjs/raw-Date usage outside DateTimeUtil (rule C8). Runs for Bash and Write/Edit.
-import { execSync } from 'node:child_process';
+// they run: force-push, raw DROP/TRUNCATE, writes to secrets, and dayjs/raw-Date usage
+// outside DateTimeUtil (rule C8). Runs for Bash and Write/Edit.
+// Direct commits to main are allowed by decision D32 (solo demo; commit messages stand in
+// for PRs), so no branch guard here.
 import { readHookInput, allow, block } from './util.mjs';
 
 const input = await readHookInput();
@@ -16,20 +17,6 @@ if (tool === 'Bash') {
   }
   if (/\b(DROP|TRUNCATE)\s+(TABLE|DATABASE|SCHEMA)\b/i.test(command)) {
     block('H2: raw DROP/TRUNCATE is blocked. Schema changes belong in reviewed migration files.');
-  }
-  if (/\bgit\s+commit\b/.test(command)) {
-    try {
-      const branch = execSync('git rev-parse --abbrev-ref HEAD', {
-        stdio: ['ignore', 'pipe', 'ignore'],
-      })
-        .toString()
-        .trim();
-      if (branch === 'main' || branch === 'master') {
-        block(`H2: direct commit to ${branch} is blocked. Work on a feature branch and open a PR.`);
-      }
-    } catch {
-      // Not a git repo or detached HEAD — nothing to guard.
-    }
   }
   allow();
 }
