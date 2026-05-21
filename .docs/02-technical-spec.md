@@ -284,8 +284,9 @@ configured there once (utc + timezone plugins registered).
 | Age | `calculateAge(dob)` — the single source for both display and filtering. |
 
 `DateTimeUtil` exposes: `calculateAge`, `formatDob` (zoneless), `toUserZone`,
-`resolveTimezone`, `nowUtc`, `isValidDate`, `isFuture`. Age uses dayjs year-diff, so a Feb-29
-birthday ages on Feb 28 in non-leap years (documented convention, D38).
+`resolveTimezone`, `nowUtc`, `subtractDaysUtc` (purge-window math), `isValidDate`, `isFuture`.
+Age uses dayjs year-diff, so a Feb-29 birthday ages on Feb 28 in non-leap years (documented
+convention, D38).
 
 ---
 

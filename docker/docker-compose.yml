@@ -1,5 +1,7 @@
 # Local Postgres for dev parity only (spec §2). NOT the deploy path — production is
 # Vercel Postgres (Neon). Credentials here are local-only and intentionally non-secret.
+# Explicit project name isolates this stack so it never adopts other Compose projects.
+name: finni
 services:
   postgres:
     image: postgres:16-alpine
@@ -9,12 +11,16 @@ services:
       POSTGRES_USER: finni
       POSTGRES_PASSWORD: finni_local_dev
       POSTGRES_DB: finni
+    # Host port 5434 (5432/5433 are commonly taken) → container 5432. Match DATABASE_URL.
     ports:
-      - "5432:5432"
+      - "5434:5432"
     volumes:
-      - ./pgdata:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U finni -d finni"]
       interval: 5s
       timeout: 5s
       retries: 5
+
+volumes:
+  pgdata:

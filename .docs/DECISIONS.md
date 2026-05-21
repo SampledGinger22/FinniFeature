@@ -169,3 +169,16 @@ graded (UI/UX and code quality for patient management).
     the highest-risk free-text.
   - **Deferred:** searching patients *by name* would need a blind/HMAC index (deterministic
     lookup over encrypted names); out of scope for v1's status/location/age hero filter.
+- **D40 — Data-layer tooling.** `postgres.js` as the single Postgres driver (works for local
+  Docker and Neon over TCP from Vercel Node functions, avoiding a second edge driver);
+  `drizzle-kit` for migrations (committed under `apps/api/drizzle/`); `uuidv7` for app-side v7
+  PKs (Node's `randomUUID` is v4 only); `@faker-js/faker` for the deterministic seed; and
+  `@electric-sql/pglite` for repository tests — a real Postgres engine in-process, so scope +
+  encryption behavior is *exercised* without requiring Docker in CI. Repositories take an
+  injected `AppDatabase`, so the same code runs against postgres.js and pglite.
+- **D41 — Docker kept as the standard local-dev DB, hardened.** Docker stays (D4: dev parity,
+  never the deploy path) because a local Postgres matching prod's engine is the standard,
+  self-contained, offline-capable local setup. Hardened after a collision: explicit Compose
+  project name `finni` (no longer adopts other projects) and host port **5434** (5432/5433 were
+  taken on the dev machine) → container 5432, matched in `.env.example`. Tests use pglite; dev
+  can alternatively point `DATABASE_URL` at Neon.

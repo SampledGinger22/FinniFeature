@@ -102,3 +102,9 @@ describe('DateTimeUtil.nowUtc', () => {
     expect(DateTimeUtil.nowUtc()).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$/);
   });
 });
+
+describe('DateTimeUtil.subtractDaysUtc', () => {
+  it('subtracts whole days and stays in UTC', () => {
+    expect(DateTimeUtil.subtractDaysUtc('2024-01-31T00:00:00Z', 30)).toBe('2024-01-01T00:00:00.000Z');
+  });
+});

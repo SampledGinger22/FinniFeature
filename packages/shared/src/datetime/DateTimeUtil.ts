@@ -40,6 +40,11 @@ export const DateTimeUtil = {
     return dayjs.utc().toISOString();
   },
 
+  // Subtract whole days from a UTC timestamp, returning ISO UTC — soft-delete purge math.
+  subtractDaysUtc(isoTimestamp: string, days: number): string {
+    return dayjs.utc(isoTimestamp).subtract(days, 'day').toISOString();
+  },
+
   // True only for a real calendar date in YYYY-MM-DD (round-trip rejects e.g. 2000-02-30).
   isValidDate(dateOnly: string): boolean {
     const parsed = dayjs(dateOnly);

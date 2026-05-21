@@ -33,6 +33,3 @@ Thumbs.db
 coverage/
 playwright-report/
 test-results/
-
-# Local Postgres volume (docker)
-docker/pgdata/

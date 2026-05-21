@@ -65,3 +65,14 @@
   date_of_birth + region + city queryable (at-rest + scoped) so the exact age/location hero
   filter and sort work at scale. *Why:* a B-tree index can't sit on an encrypted column;
   this confines the deviation to one documented, bounded concession (queryable DOB).
+- Built the data layer: Drizzle schema (patient/address/contact_method, UUID v7 PKs, documented
+  indexes incl. the composite `(deleted_at, archived, status)`), AES-256-GCM PHI cipher
+  (repository layer), repositories with explicit scope (active/include-archived/include-deleted)
+  and encrypt-on-write/decrypt-on-read, the atomic patient-creation service transaction, and a
+  deterministic faker seed (36 patients, six statuses, multi-state, insurance + email/phone mix).
+- Added `subtractDaysUtc` to DateTimeUtil for the purge window.
+- Tooling (D40): `drizzle-orm`, `postgres`, `uuidv7`, `drizzle-kit`, `@faker-js/faker`,
+  `@electric-sql/pglite`. Repository scope + PHI + purge are exercised on pglite (9 api tests).
+- Docker hardened (D41): explicit Compose project name `finni`, host port 5434, named volume.
+- Verified end-to-end against local Postgres: seed → headline "intake/NY/under-30" returns rows
+  → PHI stored as ciphertext while region stays queryable.

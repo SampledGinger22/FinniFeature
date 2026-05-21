@@ -5,13 +5,22 @@
   "type": "module",
   "scripts": {
     "type-check": "tsc --noEmit",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run --passWithNoTests",
+    "db:generate": "drizzle-kit generate",
+    "db:push": "drizzle-kit push",
+    "seed": "bun run scripts/seed.ts"
   },
   "dependencies": {
-    "@finni/shared": "workspace:*"
+    "@finni/shared": "workspace:*",
+    "drizzle-orm": "^0.45.2",
+    "postgres": "^3.4.9",
+    "uuidv7": "^1.2.1"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.4.5",
+    "@faker-js/faker": "^10.4.0",
     "@vercel/node": "^5.1.0",
+    "drizzle-kit": "^0.31.10",
     "vite": "^6.0.5",
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^2.1.8"
