@@ -1,4 +1,4 @@
-import { App, Button, Drawer, Form, Input, Select, Switch } from 'antd';
+import { App, Button, DatePicker, Drawer, Form, Input, Select, Switch } from 'antd';
 import { DateTimeUtil, PatientStatus, patientUpdateSchema } from '@finni/shared';
 import type { PatientUpdateInput, PatientWithRelations } from '@finni/shared';
 import { patientStatusLabels } from '@/components/atoms/StatusTag';
@@ -15,6 +15,7 @@ interface PatientEditFormValues {
   firstName: string;
   middleName: string;
   lastName: string;
+  dateOfBirth: string;
   status: PatientStatus;
   hasInsurance: boolean;
 }
@@ -24,12 +25,16 @@ const statusOptions = Object.values(PatientStatus).map((status) => ({
   label: patientStatusLabels[status],
 }));
 
-// Edit = right drawer (§8); DOB is shown read-only (rarely edited; the dayjs-bound picker is a
-// later DateTimeUtil-encapsulated upgrade). The same shared Zod schema validates form and API (D15).
+const DOB_DISPLAY_FORMAT = 'MMM D, YYYY';
+
+// Edit = right drawer (§8). DOB is editable via a calendar to catch misentries; the picker's
+// dayjs value is bridged through DateTimeUtil so this component stays dayjs-free (C8). The same
+// shared Zod schema validates form and API (D15).
 export function PatientEditDrawer({ patient, open, onClose }: PatientEditDrawerProps): JSX.Element {
   const { styles } = usePatientEditDrawerStyles();
   const { message } = App.useApp();
   const [form] = Form.useForm<PatientEditFormValues>();
+  const watchedDob = Form.useWatch('dateOfBirth', form);
   const mutation = useUpdatePatientMutation();
 
   const handleFinish = (values: PatientEditFormValues): void => {
@@ -38,7 +43,7 @@ export function PatientEditDrawer({ patient, open, onClose }: PatientEditDrawerP
       firstName: values.firstName,
       middleName: values.middleName.trim() === '' ? null : values.middleName.trim(),
       lastName: values.lastName,
-      dateOfBirth: patient.dateOfBirth,
+      dateOfBirth: values.dateOfBirth,
       status: values.status,
       hasInsurance: values.hasInsurance,
     };
@@ -90,17 +95,12 @@ export function PatientEditDrawer({ patient, open, onClose }: PatientEditDrawerP
             firstName: patient.firstName,
             middleName: patient.middleName ?? '',
             lastName: patient.lastName,
+            dateOfBirth: patient.dateOfBirth,
             status: patient.status,
             hasInsurance: patient.hasInsurance,
           }}
           onFinish={handleFinish}
         >
-          <div className={styles.readonlyRow}>
-            <span className={styles.readonlyLabel}>
-              Date of birth · age {DateTimeUtil.calculateAge(patient.dateOfBirth)}
-            </span>
-            <span>{DateTimeUtil.formatDob(patient.dateOfBirth)}</span>
-          </div>
           <Form.Item label="First name" name="firstName">
             <Input />
           </Form.Item>
@@ -109,6 +109,19 @@ export function PatientEditDrawer({ patient, open, onClose }: PatientEditDrawerP
           </Form.Item>
           <Form.Item label="Last name" name="lastName">
             <Input />
+          </Form.Item>
+          <Form.Item
+            label="Date of birth"
+            name="dateOfBirth"
+            extra={watchedDob ? `Age ${DateTimeUtil.calculateAge(watchedDob)}` : undefined}
+            getValueProps={(value) => ({ value: DateTimeUtil.toDatePickerValue(value) })}
+            normalize={(value) => DateTimeUtil.fromDatePickerValue(value)}
+          >
+            <DatePicker
+              className={styles.fullWidth}
+              format={DOB_DISPLAY_FORMAT}
+              disabledDate={(current) => DateTimeUtil.isFuture(DateTimeUtil.fromDatePickerValue(current))}
+            />
           </Form.Item>
           <Form.Item label="Status" name="status">
             <Select options={statusOptions} />

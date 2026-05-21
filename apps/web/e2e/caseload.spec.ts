@@ -9,21 +9,30 @@ test('caseload loads, and editing a patient updates the list', async ({ page }) 
   await expect(page.getByRole('heading', { name: 'Caseload' })).toBeVisible();
   const firstCard = page.getByRole('button', { name: /^Edit / }).first();
   await expect(firstCard).toBeVisible();
+  const patientName = ((await firstCard.getAttribute('aria-label')) ?? '').replace(/^Edit /, '');
 
   // Open the right edit drawer.
   await firstCard.click();
   const drawer = page.getByRole('dialog', { name: 'Edit patient' });
   await expect(drawer).toBeVisible();
 
-  // Change status to Churned and save (open the antd select via its selector surface).
+  // Correct the date of birth via the calendar field (the reason DOB must be editable).
+  const dobInput = drawer.locator('.ant-picker input');
+  await dobInput.click();
+  await dobInput.fill('Jan 1, 1990');
+  await dobInput.press('Enter');
+
+  // Change status to Churned (open the antd select via its selector surface) and save.
   await drawer.locator('.ant-select-selector').click();
   await page.getByTitle('Churned').click();
   await drawer.getByRole('button', { name: 'Save changes' }).click();
 
-  // Toast confirms, drawer closes, and the invalidated list refetches with a Churned tag.
+  // Toast confirms, drawer closes, and the invalidated list refetches with the new status + age.
   await expect(page.getByText('Patient updated')).toBeVisible();
   await expect(drawer).toBeHidden();
-  await expect(page.getByText('Churned').first()).toBeVisible();
+  const editedCard = page.getByRole('button', { name: `Edit ${patientName}` });
+  await expect(editedCard.getByText('Churned')).toBeVisible();
+  await expect(editedCard.getByText(/Age 36\b/)).toBeVisible();
 });
 
 // Validation comes from the shared Zod schema (D15): clearing a required field blocks the save.

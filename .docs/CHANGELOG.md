@@ -129,3 +129,7 @@
   dev API; shared-schema validation). Kitchen-sink snapshots moved to `/kitchen-sink` (unchanged pixels).
 - Tooling: added `@tanstack/react-query`, `react-router-dom` (web deps); `@finni/api` `dev` script; Vite
   dev proxy `/api` → the dev server; Playwright starts both dev servers.
+- Made the drawer DOB **editable** (misentries happen): added `DateTimeUtil.toDatePickerValue`/
+  `fromDatePickerValue` (the dayjs⇄`YYYY-MM-DD` bridge, +2 shared tests) so the antd `DatePicker` is wired
+  via Form `getValueProps`/`normalize` without the component importing dayjs (C8 holds). Future dates are
+  disabled; a live derived-age hint shows. The caseload E2E now also edits DOB through the calendar (D49).

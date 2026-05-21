@@ -232,9 +232,11 @@ graded (UI/UX and code quality for patient management).
   cipher; the repo holds no key).
 - **D49 — `patientUpdateSchema` (shared) validates the edit form and the PATCH handler** — one rule
   set, two consumers (extends D15 to edits). The slice edits the core patient fields
-  (name/status/insurance); **DOB is shown read-only** in the drawer because an editable picker is
-  dayjs-bound and C8 confines dayjs to `DateTimeUtil` — a DateTimeUtil-encapsulated date control is a
-  later upgrade. Addresses/contacts edit separately, also later.
+  (name/**DOB**/status/insurance). DOB is editable via an antd `DatePicker` whose dayjs value is
+  bridged through `DateTimeUtil.toDatePickerValue`/`fromDatePickerValue` (Form `getValueProps`/`normalize`),
+  so the component stays dayjs-free (C8 holds — dayjs lives only in `DateTimeUtil`) and the form value
+  remains a `YYYY-MM-DD` string; future dates are disabled and a live derived-age hint shows. Editable
+  DOB is required because misentries happen. Addresses/contacts edit separately, later.
 - **D50 — TanStack Query owns server data; react-router added for two routes.** `usePatientListQuery`
   /`useUpdatePatientMutation` with a key factory; a successful edit invalidates the list so it
   refreshes instantly (§9, the "rapid refresh" requirement, not hand-rolled). `react-router-dom`

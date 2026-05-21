@@ -108,3 +108,15 @@ describe('DateTimeUtil.subtractDaysUtc', () => {
     expect(DateTimeUtil.subtractDaysUtc('2024-01-31T00:00:00Z', 30)).toBe('2024-01-01T00:00:00.000Z');
   });
 });
+
+describe('DateTimeUtil DatePicker bridge', () => {
+  it('round-trips a YYYY-MM-DD through the picker value', () => {
+    const picker = DateTimeUtil.toDatePickerValue('1996-05-20');
+    expect(DateTimeUtil.fromDatePickerValue(picker)).toBe('1996-05-20');
+  });
+
+  it('treats null/empty as no date in both directions', () => {
+    expect(DateTimeUtil.toDatePickerValue(null)).toBeNull();
+    expect(DateTimeUtil.fromDatePickerValue(null)).toBe('');
+  });
+});

@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import type { Dayjs } from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 
@@ -22,6 +23,16 @@ export const DateTimeUtil = {
   // Format a DOB with no zone conversion — a birthday must not shift across midnight (§7).
   formatDob(dateOfBirth: string, format: string = DEFAULT_DOB_DISPLAY_FORMAT): string {
     return dayjs(dateOfBirth).format(format);
+  },
+
+  // Bridge a stored zoneless YYYY-MM-DD to/from the antd DatePicker's dayjs value, so date-entry
+  // components stay dayjs-free (C8): the form value remains a string, all dayjs lives here.
+  toDatePickerValue(dateOfBirth: string | null | undefined): Dayjs | null {
+    return dateOfBirth ? dayjs(dateOfBirth) : null;
+  },
+
+  fromDatePickerValue(value: Dayjs | null | undefined): string {
+    return value ? value.format(DATE_ONLY_FORMAT) : '';
   },
 
   // Render a stored UTC timestamp in the user's zone (§7).
