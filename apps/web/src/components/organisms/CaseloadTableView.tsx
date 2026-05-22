@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
-import { Table, Tag, Typography } from 'antd';
-import { RightOutlined, SafetyCertificateOutlined } from '@ant-design/icons';
+import type { HTMLAttributes } from 'react';
+import { Dropdown, Table, Tag, Typography } from 'antd';
+import { InboxOutlined, RightOutlined, SafetyCertificateOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { DateTimeUtil } from '@finni/shared';
 import type { PatientWithRelations } from '@finni/shared';
@@ -8,6 +9,7 @@ import { PatientAvatar } from '@/components/atoms/PatientAvatar';
 import { StatusTag } from '@/components/atoms/StatusTag';
 import { patientStatusLabels } from '@/components/atoms/StatusTag';
 import { PatientActionsMenu } from '@/components/molecules/PatientActionsMenu';
+import { usePatientActions } from '@/components/molecules/usePatientActions';
 import { patientFullName, patientInitials } from '@/filtering/caseloadFiltering';
 import { derivePatientAttention } from '@/attention/patientAttention';
 import type { PatientCollectionViewProps } from '@/components/organisms/patientCollectionView';
@@ -30,6 +32,27 @@ function formatLocality(patient: PatientWithRelations): string {
 // owns loading/error/empty so this component only handles the data state.
 export function CaseloadTableView({ patients, onEditPatient }: PatientCollectionViewProps): JSX.Element {
   const { styles } = useCaseloadTableViewStyles();
+  const getMenu = usePatientActions();
+  const patientsById = useMemo(() => new Map(patients.map((entry) => [entry.id, entry])), [patients]);
+
+  // Wrap each row in a context-menu Dropdown so right-click opens the same actions menu as the
+  // kebab. antd clones the <tr> (no extra DOM), merging the contextMenu handler with the row click.
+  const tableComponents = useMemo(
+    () => ({
+      body: {
+        row: (rowProps: HTMLAttributes<HTMLTableRowElement> & { 'data-row-key'?: string }) => {
+          const patient = rowProps['data-row-key'] ? patientsById.get(rowProps['data-row-key']) : undefined;
+          if (!patient) return <tr {...rowProps} />;
+          return (
+            <Dropdown menu={getMenu(patient)} trigger={['contextMenu']}>
+              <tr {...rowProps} />
+            </Dropdown>
+          );
+        },
+      },
+    }),
+    [patientsById, getMenu],
+  );
 
   // Stable column defs so antd's Table header isn't reconciled on every data/filter re-render.
   const columns: ColumnsType<PatientWithRelations> = useMemo(() => [
@@ -55,7 +78,7 @@ export function CaseloadTableView({ patients, onEditPatient }: PatientCollection
                 {name}
               </Typography.Text>
               {record.archived && (
-                <Tag className={styles.archivedFlag} color="default">
+                <Tag className={styles.archivedFlag} color="warning" icon={<InboxOutlined />}>
                   Archived
                 </Tag>
               )}
@@ -136,6 +159,7 @@ export function CaseloadTableView({ patients, onEditPatient }: PatientCollection
     <Table<PatientWithRelations>
       dataSource={patients}
       columns={columns}
+      components={tableComponents}
       rowKey={(patient) => patient.id}
       size="middle"
       pagination={false}
