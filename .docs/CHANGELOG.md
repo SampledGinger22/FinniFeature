@@ -397,3 +397,9 @@
   `DATABASE_URL` is a pgbouncer transaction-mode pooler, which doesn't support named prepared statements;
   one connection per serverless instance avoids exhausting the pool. Safe for the local Postgres dev path
   too; tests use pglite and don't touch this client.
+- Vercel build raises the Node heap (`NODE_OPTIONS=--max-old-space-size=6144` in `vercel.json`'s build
+  command; `NODE_OPTIONS` added to `turbo.json` `globalPassThroughEnv` so strict-mode turbo forwards it to
+  the vite child). *Why:* the first deploy was OOM-killed during rollup's "rendering chunks" step on the
+  8 GB build box — the app bundles into one ~1.49 MB chunk. Build-only; the Windows local build is
+  unaffected. Durable follow-up: code-split the bundle (manualChunks/route-level lazy) to cut peak memory
+  and the >500 kB chunk.
