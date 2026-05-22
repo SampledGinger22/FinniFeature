@@ -321,3 +321,16 @@
 - Lifecycle redesign (feedback): the VIEW drawer's lifecycle is now a row of **status pills** (current
   highlighted in its status color, the rest neutral) instead of a connected progress stepper — they are
   statuses, not steps. Removes the connector line that showed through the circles.
+
+### Quick actions, archived view, pipeline pills (feedback)
+- **Quick "Set status" submenu** added to the card/table three-dot menu, plus the existing
+  archive/reactivate/delete/restore/purge — extracted into one shared `usePatientActions` builder so the
+  kebab and the right-click menu share a single source. **Right-click** on a card or table row now opens
+  that same menu (card wraps in a contextMenu `Dropdown`; the table wraps each row via
+  `components.body.row`). Quick status re-sends the patient fields with the new status (D58).
+- **"Show archived" now shows archived-only** (it was additive). The page narrows the loaded set to
+  `archived === true` when the scope is IncludeArchived, so the list, facets, counts, and the **pipeline
+  segment numbers** all reflect the archived-only view. The **Archived** flag is now a clear amber tag
+  with an inbox icon on both card and table.
+- **Pipeline pills are equal-width** (fill the row, wrap on narrow) — no longer sized by count/percentage.
+- +3 web tests (`PatientActionsMenu`).

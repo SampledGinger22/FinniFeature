@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Button, Space } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
+import { RepositoryScope } from '@finni/shared';
 import type { PatientWithRelations } from '@finni/shared';
 import { CaseloadViewSwitcher } from '@/components/molecules/CaseloadViewSwitcher';
 import { PageHeader } from '@/components/molecules/PageHeader';
@@ -20,7 +21,14 @@ import { usePatientListQuery } from '@/queries/patientQueries';
 export function CaseloadPage(): JSX.Element {
   const scope = useCaseloadStore((state) => state.scope);
   const query = usePatientListQuery(scope);
-  const { patients, facets, matchCount } = useFilteredPatients(query.data);
+  // "Show archived" loads active+archived from the server; narrow to archived-only so the checkbox
+  // is an archived *view*, not an additive include. Everything downstream (list, pipeline, facets,
+  // counts) then operates on the same archived-only set.
+  const loaded = useMemo(() => {
+    const data = query.data ?? [];
+    return scope === RepositoryScope.IncludeArchived ? data.filter((entry) => entry.archived) : data;
+  }, [query.data, scope]);
+  const { patients, facets, matchCount } = useFilteredPatients(loaded);
 
   const [editingPatient, setEditingPatient] = useState<PatientWithRelations | null>(null);
   const [editOpen, setEditOpen] = useState(false);
@@ -50,7 +58,7 @@ export function CaseloadPage(): JSX.Element {
       </ErrorBoundary>
 
       <ErrorBoundary fallbackTitle="The pipeline is unavailable">
-        <CaseloadPipelineBar patients={query.data ?? []} matchCount={matchCount} />
+        <CaseloadPipelineBar patients={loaded} matchCount={matchCount} />
       </ErrorBoundary>
 
       <ErrorBoundary fallbackTitle="The caseload could not be displayed">
