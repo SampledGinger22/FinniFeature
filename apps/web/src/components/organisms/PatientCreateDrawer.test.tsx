@@ -23,7 +23,7 @@ describe('PatientCreateDrawer', () => {
     const onClose = vi.fn();
     renderWithProviders(<PatientCreateDrawer open onClose={onClose} />);
 
-    await userEvent.click(screen.getByRole('button', { name: 'Create' }));
+    await userEvent.click(screen.getByRole('button', { name: /add patient/i }));
 
     await waitFor(() => expect(screen.getAllByText(/at least 1 character/i).length).toBeGreaterThan(0));
     expect(mockedCreate).not.toHaveBeenCalled();
@@ -37,14 +37,17 @@ describe('PatientCreateDrawer', () => {
 
     await userEvent.type(screen.getByLabelText('First name'), 'Avery');
     await userEvent.type(screen.getByLabelText('Last name'), 'Johnson');
-    await userEvent.type(screen.getByLabelText('Email'), 'avery@example.com');
-    await userEvent.type(screen.getByLabelText('State'), 'NY');
+    await userEvent.type(screen.getByLabelText('Primary email'), 'avery@example.com');
+    // State is a searchable Select; open it, filter by name, and pick the option (stores 'NY').
+    await userEvent.click(screen.getByRole('combobox', { name: 'State' }));
+    await userEvent.type(screen.getByRole('combobox', { name: 'State' }), 'New York');
+    await userEvent.click(await screen.findByText('New York'));
     // DOB via the picker's text input, bridged through DateTimeUtil to a YYYY-MM-DD form value.
     const dob = screen.getByLabelText('Date of birth');
     await userEvent.type(dob, 'May 20, 1996');
     await userEvent.keyboard('{Enter}');
 
-    await userEvent.click(screen.getByRole('button', { name: 'Create' }));
+    await userEvent.click(screen.getByRole('button', { name: /add patient/i }));
 
     await waitFor(() => expect(mockedCreate).toHaveBeenCalledTimes(1));
     const submitted = mockedCreate.mock.calls[0]![0];

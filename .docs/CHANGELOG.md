@@ -278,3 +278,13 @@
 - Changed `DEFAULT_USER_PREFERENCES` (the appearance defaults before a user customizes): font family
   **Sans → Serif (Georgia)** and density **Compact → Comfortable**. Palette (Default) and text size
   (Medium) unchanged. Applies to fresh state; existing persisted prefs are unaffected until reset.
+
+### Visual redesign — Add-patient bottom drawer
+- **Restyled `PatientCreateDrawer`** to match the reference: a drag-handle pill, a "NEW RECORD" eyebrow +
+  "Add a patient to your caseload" title + subtitle, then **IDENTITY / CONTACT / PRIMARY ADDRESS** sections
+  of responsive field grids (`auto-fit` so they reflow narrow). Lifecycle status is now a color-dot pill
+  selector; an optional **Phone** field was added (becomes a secondary contact); **State** is a searchable
+  Select of US states. Sticky footer pairs a lock + "Stored encrypted at rest. PHI fields never appear in
+  logs." note with Cancel / orange **Add patient**. The drawer mask now **blurs** the workspace behind it.
+- New reusable `StatusPillSelect` atom (color-dot single-select, Form-control shaped) + `US_STATES` list.
+  +2 atom tests; create-drawer tests updated for the new labels/controls.
