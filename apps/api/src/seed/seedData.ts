@@ -82,3 +82,11 @@ export async function seedPatients(db: AppDatabase): Promise<SeedResult> {
 
   return { total: createdIds.length, archived: archivedId ? 1 : 0, softDeleted: deletedId ? 1 : 0 };
 }
+
+// Deploy-time guard: seed only when the database holds no patients, so an existing dataset is
+// never wiped. Returns null when seeding was skipped because data already exists.
+export async function seedIfEmpty(db: AppDatabase): Promise<SeedResult | null> {
+  const existing = await db.select({ id: patient.id }).from(patient).limit(1);
+  if (existing.length > 0) return null;
+  return seedPatients(db);
+}

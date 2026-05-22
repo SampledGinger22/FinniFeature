@@ -90,13 +90,18 @@ docker compose -f docker/docker-compose.yml up -d        # Postgres on host port
 
 # from apps/api, with DATABASE_URL + PHI_ENCRYPTION_KEY set (see .env.example):
 cd apps/api
-bun run db:push      # apply the Drizzle schema
+bun run db:migrate   # apply versioned migrations from drizzle/
 bun run seed         # seed realistic demo data
 ```
 
 Point `DATABASE_URL` at that Postgres (or a Neon instance) and `bun run dev` uses it instead
 of pglite. The seed is deterministic — the same realistic caseload every run, spanning all
 six statuses and multiple US states so the location and age filters have signal.
+
+**Schema changes:** edit `src/db/schema.ts`, run `bun run db:generate` to write a new
+migration under `drizzle/`, commit it, then `bun run db:migrate` applies it. `db:push` syncs
+the schema directly for throwaway prototyping only — it is not the deploy path. Deployment runs
+`db:deploy` (migrate, then seed only if the database is empty) automatically — see DECISIONS D61.
 
 ### Demo controls
 A clearly-separated "Demo controls" area lets a reviewer reset state: **purge** expired

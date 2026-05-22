@@ -347,3 +347,19 @@ graded (UI/UX and code quality for patient management).
   (the broken `@vercel/node` build clobbering the bundles). Removing the `api/` dir stops the double-build so
   only the prebuilt output ships. Flat, bracket-free names (`patients-item.ts`, `patients-action.ts`,
   `demo-action.ts`) since config.json maps URLs to them explicitly.
+- **D61 — Versioned migrations are the schema-of-record; deployment runs migrate-then-seed-if-empty.**
+  Authoring: edit `src/db/schema.ts` → `db:generate` writes a numbered SQL migration under `drizzle/`
+  (committed) → `db:migrate` applies it via a programmatic `migrate()` (`src/db/migrator.ts`, a dedicated
+  short-lived `postgres.js` connection). The Vercel `buildCommand` now ends with `db:deploy`
+  (`scripts/deploy.ts`): `runMigrations()` then `seedIfEmpty()`, which seeds the deterministic demo set
+  **only when the `patient` table is empty** so an existing dataset is never wiped. `migrate()` is
+  idempotent (tracks applied files in `drizzle.__drizzle_migrations`), so every deploy re-runs it safely.
+  This replaces the prior out-of-band "remote command" for schema/seed. `db:push` (direct schema sync, no
+  history) is retained for throwaway prototyping only — it is not the deploy path. **Build-env note:** the
+  build now needs `DATABASE_URL` *and* `PHI_ENCRYPTION_KEY` at build time (the seed encrypts PHI on insert);
+  both are already declared in `turbo.json` `globalPassThroughEnv`. Verified end-to-end against a throwaway
+  local Postgres: migrate applies `0000` on a fresh DB, first `db:deploy` seeds 36, second skips, re-running
+  migrate is a no-op, and `first_name` is ciphertext at rest while `region` stays plaintext (D39).
+  **Cutover:** a DB previously created via `db:push` has no `__drizzle_migrations` ledger, so the first
+  `migrate()` will try to `CREATE TABLE` over existing tables — start the deployed DB fresh (data is
+  non-real demo data) or baseline the ledger once.

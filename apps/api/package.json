@@ -10,8 +10,10 @@
     "type-check": "tsc --noEmit",
     "test": "vitest run --passWithNoTests",
     "db:generate": "drizzle-kit generate",
+    "db:migrate": "bun run scripts/migrate.ts",
     "db:push": "drizzle-kit push",
     "seed": "bun run scripts/seed.ts",
+    "db:deploy": "bun run scripts/deploy.ts",
     "build:vercel": "bun run scripts/buildVercelOutput.ts"
   },
   "dependencies": {

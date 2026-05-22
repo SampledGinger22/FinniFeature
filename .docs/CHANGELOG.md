@@ -450,3 +450,23 @@
   yet), not the documented **O(page)**. The O(page) property is the design intent once pagination lands; the
   plaintext indexed filter/sort columns already hold at scale. *Why:* the headline scale argument leaned on a
   property the code does not yet implement.
+
+### DB migration system + deploy-time schema/seed (D61)
+- Added a versioned-migration runner and made it the schema-of-record: `src/db/migrator.ts` (`runMigrations()`
+  — a dedicated short-lived `postgres.js` connection running drizzle's programmatic `migrate()`), the
+  `db:migrate` script (`scripts/migrate.ts`), and `seedIfEmpty()` in `seedData.ts` (seeds the deterministic
+  set only when the `patient` table is empty — never wipes existing data). *Why:* `db:generate` + one
+  committed migration existed, but nothing *applied* migrations; only `db:push` (direct sync, no history) did.
+- Added `db:deploy` (`scripts/deploy.ts` = migrate then seed-if-empty) and appended it to `vercel.json`'s
+  `buildCommand`. *Why:* schema setup + first-run seed now happen automatically on deploy, replacing the prior
+  out-of-band "remote command" (the incorrect way to do it). `migrate()` is idempotent so every deploy is safe.
+- README "Running locally" now uses `bun run db:migrate` for the local Postgres path and documents the
+  generate→commit→migrate workflow; `db:push` is labelled prototyping-only. Spec §"Deployment reality" gained
+  a "Schema & seed at deploy" note. *Why:* docs track the new workflow.
+- **Build-env dependency:** the build now needs `DATABASE_URL` *and* `PHI_ENCRYPTION_KEY` at build time (the
+  seed encrypts PHI on insert); both are already in `turbo.json` `globalPassThroughEnv`. **Cutover:** a DB
+  previously set up via `db:push` lacks the `__drizzle_migrations` ledger, so the first `migrate()` will
+  `CREATE TABLE` over existing tables — start the deployed DB fresh (non-real demo data) or baseline once.
+- Verified end-to-end against a throwaway local Postgres (not the dev DB): migrate applies `0000` on a fresh
+  DB, first `db:deploy` seeds 36 / second skips, re-running migrate is a no-op, `first_name` is ciphertext at
+  rest while `region` stays plaintext (D39). api type-check passes.

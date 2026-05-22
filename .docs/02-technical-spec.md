@@ -74,6 +74,13 @@ and `config.json` rewrites the dynamic URLs (`/api/patients/:id`, `/api/patients
 back to `/index.html` for the SPA. Vercel serves this output verbatim — no alias resolution at
 runtime. This keeps `@/` in source (C2), giving the API its own bundler as the web app has Vite.
 
+**Schema & seed at deploy (D61).** The build ends with `db:deploy`: it applies versioned migrations
+from `drizzle/` via a programmatic `migrate()` (idempotent — safe every deploy), then seeds the
+deterministic demo set **only if the `patient` table is empty**, so a fresh database is schema-ready
+and populated with no manual step and an existing dataset is never wiped. Authoring uses
+`db:generate` → commit the SQL → `db:migrate`; `db:push` is prototyping-only, not the deploy path.
+The build env therefore needs `DATABASE_URL` *and* `PHI_ENCRYPTION_KEY` (the seed encrypts PHI on insert).
+
 **Local dev transport (D47).** Since there is no Vercel runtime locally, `@finni/api` ships a
 small Node-`http` dev server (`bun run dev`, Vite proxies `/api` to it) that adapts the *same*
 framework-agnostic route-core the Vercel functions use. It runs against Postgres when

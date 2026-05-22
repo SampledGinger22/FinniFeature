@@ -2,5 +2,5 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
   "installCommand": "cd ../.. && bun install",
-  "buildCommand": "cd ../.. && NODE_OPTIONS=--max-old-space-size=6144 turbo run build --filter=@finni/web && bun run --filter=@finni/api build:vercel"
+  "buildCommand": "cd ../.. && NODE_OPTIONS=--max-old-space-size=6144 turbo run build --filter=@finni/web && bun run --filter=@finni/api build:vercel && bun run --filter=@finni/api db:deploy"
 }
