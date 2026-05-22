@@ -2,14 +2,5 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
   "installCommand": "cd ../.. && bun install",
-  "buildCommand": "cd ../.. && NODE_OPTIONS=--max-old-space-size=6144 turbo run build --filter=@finni/web && rm -rf apps/api/public && cp -r apps/web/dist apps/api/public",
-  "outputDirectory": "public",
-  "functions": {
-    "api/**/*.ts": {
-      "runtime": "@vercel/node@5.1.0"
-    }
-  },
-  "rewrites": [
-    { "source": "/((?!api/).*)", "destination": "/index.html" }
-  ]
+  "buildCommand": "cd ../.. && NODE_OPTIONS=--max-old-space-size=6144 turbo run build --filter=@finni/web && bun run --filter=@finni/api build:vercel"
 }

@@ -421,3 +421,11 @@
   non-fatal (the deploy still completed) but noisy and could become fatal; relaxing it only for the api
   package clears them. Local `tsc` is unaffected — it classifies modules via `module: ESNext`, not the
   flag, so it still passed before and after.
+- Switched the API deploy to the **Build Output API** (D60): added `esbuild` (api devDep), the
+  `build:vercel` script + `apps/api/scripts/buildVercelOutput.ts`, and slimmed `apps/api/vercel.json` to
+  install/build commands only (retired the `public` copy, `functions` glob, and `rewrites`). *Why:*
+  `@vercel/node` left unresolved `@/` requires in the runtime bundle (`Cannot find module '@/db/client'`),
+  and converting the API to relative imports would violate C2. The script esbuild-bundles each function
+  (resolving `@/`, inlining `@finni/shared`) into a self-contained `*.func`, copies the SPA to `static/`,
+  and writes a v3 `config.json` (clean URLs → bracket-free functions with path segments as query params;
+  SPA fallback). Verified locally: all five bundles load with no missing modules; `health` returns 200.

@@ -8,8 +8,6 @@ dist/
 build/
 .turbo/
 *.tsbuildinfo
-# Vercel single-project deploy copies apps/web/dist here at build time (see apps/api/vercel.json)
-apps/api/public/
 
 # Vercel
 .vercel/

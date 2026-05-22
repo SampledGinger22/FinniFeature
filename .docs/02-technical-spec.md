@@ -62,14 +62,17 @@ Vercel runs the static frontend and the serverless functions. There is **no
 long-running Express server** — route handlers are thin Vercel functions that delegate
 to the service layer. Docker is for reproducible local development, not deployment.
 
-**Single-project topology (D59).** One Vercel project, **Root Directory `apps/api`**. The
-functions stay at the conventional `apps/api/api/*` so Vercel's filesystem routing resolves
-the dynamic `[id]`/`[action]` segments natively. The build (`apps/api/vercel.json`) builds the
-SPA from the repo root (`turbo run build --filter=@finni/web`) and copies `apps/web/dist` into
-`apps/api/public`, which Vercel serves as the static root on the **same origin** — so the
-client's relative `/api/*` calls resolve without CORS or a cross-project rewrite. A
-`/((?!api/).*) → /index.html` rewrite gives the React-Router SPA its deep-link fallback while
-leaving `/api/*` to the functions.
+**Single-project topology (D59 → D60).** One Vercel project, **Root Directory `apps/api`**,
+serving SPA + functions on one origin so the client's relative `/api/*` calls resolve without
+CORS or a cross-project rewrite. Because `@vercel/node` does not resolve TS path aliases (`@/`
+survives into the runtime bundle and 500s), the build does **not** rely on Vercel's per-file
+function compilation. Instead `apps/api/scripts/buildVercelOutput.ts` emits a prebuilt **Build
+Output API (v3)** tree (`apps/api/.vercel/output`): each function is esbuild-bundled (resolving
+`@/` + inlining `@finni/shared`) into a self-contained `*.func`, the SPA is copied to `static/`,
+and `config.json` rewrites the dynamic URLs (`/api/patients/:id`, `/api/patients/:id/:action`,
+`/api/demo/:action`) to bracket-free functions passing the segments as query params, then falls
+back to `/index.html` for the SPA. Vercel serves this output verbatim — no alias resolution at
+runtime. This keeps `@/` in source (C2), giving the API its own bundler as the web app has Vite.
 
 **Local dev transport (D47).** Since there is no Vercel runtime locally, `@finni/api` ships a
 small Node-`http` dev server (`bun run dev`, Vite proxies `/api` to it) that adapts the *same*

@@ -321,6 +321,20 @@ graded (UI/UX and code quality for patient management).
   rewrites to map `/api/*` and recover the `[id]` params. A `/((?!api/).*) → /index.html` rewrite supplies
   the React-Router deep-link fallback. Env vars split onto the one project: runtime `DATABASE_URL`
   (pooled) + `PHI_ENCRYPTION_KEY` + `USE_HEADSHOTS` for the functions, build-time `VITE_USE_HEADSHOTS`
-  for the SPA. `apps/api/public` is a build artifact (gitignored). Because `DATABASE_URL` points at a
+  for the SPA. Because `DATABASE_URL` points at a
   pgbouncer transaction-mode pooler, the `postgres()` client (`db/client.ts`) sets `prepare: false`
   (named prepared statements are unsupported there) and `max: 1` (one connection per function instance).
+- **D60 — API functions ship via the Build Output API; supersedes D59's static-copy + filesystem-functions
+  mechanics (topology and single-origin intent unchanged).** Deploying surfaced two `@vercel/node`
+  realities its per-file compilation can't satisfy alongside our conventions: it emits CommonJS (broke
+  under `type: module` → `exports is not defined`) and it does **not** resolve TS path aliases (`@/db/client`
+  survived into the runtime bundle → `Cannot find module`). Converting the API's 84 `@/` imports to
+  relative would violate C2 (a non-negotiable). Instead, `apps/api/scripts/buildVercelOutput.ts`
+  esbuild-bundles each function (esbuild *does* resolve `@/` via tsconfig paths and inlines `@finni/shared`)
+  into a self-contained `*.func`, copies the SPA to `static/`, and writes a v3 `config.json`. Functions are
+  named bracket-free (`patients-item`, `patients-action`, `demo-action`) and clean URLs rewrite to them
+  passing path segments as query params (the handlers already read `req.query.id`/`req.query.action`);
+  `shouldAddHelpers: true` wires the `req`/`res` helpers. Vercel serves `.vercel/output` verbatim, so there
+  is no alias resolution at runtime and `@/` stays in source. Node pinned to `22.x`; `verbatimModuleSyntax`
+  is irrelevant here since esbuild (not tsc) compiles the functions. Verified locally: all five bundles load
+  with no missing modules and `health` returns 200.
