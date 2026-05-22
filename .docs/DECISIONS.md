@@ -273,3 +273,14 @@ graded (UI/UX and code quality for patient management).
   `@dnd-kit/core` is added (not `sortable`/`utilities`) — columns are droppables and cards are draggables;
   no in-list reordering is needed. The drag/group logic is extracted to a pure, unit-tested helper
   (`caseloadBoard.ts`) since real pointer drag is not testable under jsdom.
+- **D55 — Persistent `AppShell` template + shared `PageHeader`; one layout, not per-page headers.** The
+  visual redesign frames every workspace page in a collapsible left sidebar (brand, nav with active
+  left-accent, pinned Settings, the demo provider chip) beside one scrolling main column, wired once via
+  an Outlet layout in `FinniRoot`. Pages now render only a `PageHeader` (uppercase "Provider Workspace"
+  eyebrow + title + actions slot) and their content — the four duplicated header/nav blocks are gone. The
+  kitchen-sink QA surface stays outside the shell so its visual baseline is undisturbed. **Naming was
+  ambiguous (a prior verbal note said rename Caseload→Patients and Your day→Caseload); resolved with the
+  user in favour of matching the reference screenshot — no rename, and the unbuilt Inbox/Reports nav items
+  are omitted until they exist.** Sidebar collapse is persisted UI layout state on `usePreferencesStore`
+  but kept out of the shared `UserPreferences` contract and untouched by `reset()` (layout ≠ preference).
+  Sidebar/content sizing lives in a new `finniLayout` token group exposed as `--finni-*` CSS vars (D42).

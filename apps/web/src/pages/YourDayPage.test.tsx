@@ -98,7 +98,7 @@ describe('YourDayPage', () => {
     mockRefetch.mockReset();
   });
 
-  it('renders the header with brand logo and title', () => {
+  it('renders the page header with eyebrow and title', () => {
     mockUsePatientListQuery.mockReturnValue({
       data: [],
       isLoading: false,
@@ -106,8 +106,8 @@ describe('YourDayPage', () => {
       refetch: mockRefetch,
     });
     renderYourDayPage();
-    expect(screen.getByText('Your day')).toBeInTheDocument();
-    expect(screen.getByText('Back to caseload')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Your day' })).toBeInTheDocument();
+    expect(screen.getByText(/provider workspace/i)).toBeInTheDocument();
   });
 
   it('shows a skeleton while loading', () => {

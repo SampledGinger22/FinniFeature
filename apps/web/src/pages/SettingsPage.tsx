@@ -1,7 +1,7 @@
-import { Button, Card, Select, Segmented, Typography } from 'antd';
+import { Button, Card, Select, Segmented } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { DateTimeUtil, Density, FontFamily, FontScale, ThemePalette } from '@finni/shared';
-import { BrandLogo } from '@/components/atoms/BrandLogo';
+import { PageHeader } from '@/components/molecules/PageHeader';
 import { DemoControls } from '@/components/organisms/DemoControls';
 import { usePreferencesStore } from '@/state/usePreferencesStore';
 import { useSettingsPageStyles } from '@/pages/SettingsPage.styles';
@@ -73,16 +73,8 @@ export function SettingsPage(): JSX.Element {
   };
 
   return (
-    <div className={styles.page}>
-      <header className={styles.header}>
-        <BrandLogo />
-        <Typography.Title level={3} className={styles.title}>
-          Settings
-        </Typography.Title>
-        <nav className={styles.nav}>
-          <Button onClick={() => navigate('/')}>Back to caseload</Button>
-        </nav>
-      </header>
+    <>
+      <PageHeader title="Settings" />
 
       <div className={styles.body}>
         <Card title="Appearance">
@@ -165,6 +157,6 @@ export function SettingsPage(): JSX.Element {
 
         <Button onClick={reset}>Reset to defaults</Button>
       </div>
-    </div>
+    </>
   );
 }

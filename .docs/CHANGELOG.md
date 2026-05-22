@@ -199,3 +199,20 @@
 - NOTE: a larger visual redesign is queued next (left sidebar nav, rename Caseload→Patients, redesigned
   table rows + patient drawer with lifecycle stepper + background blur, caseload pipeline bar, provider-
   workspace eyebrow). Tracked in memory with reference-screenshot paths.
+
+### Visual redesign — app shell (foundation)
+- **Persistent `AppShell` layout** (`components/templates/AppShell.tsx`) replaces the per-page header/nav
+  blocks every page used to carry. A collapsible left sidebar holds the brand mark, the working nav items
+  (Caseload, Your day) with active left-accent highlighting, a pinned Settings item, and the demo provider
+  chip; the main column scrolls beside it, centered at a content max-width. Wired once via an Outlet layout
+  in `FinniRoot`; the kitchen-sink QA surface stays bare. *Why:* matches Finni's real product frame and
+  removes four copies of the same header. **Naming resolved with the user: keep "Caseload"/"Your day"
+  (match the screenshot, no rename); omit the unbuilt Inbox/Reports items.** (D55)
+- New shared `PageHeader` molecule: a "Provider Workspace" uppercase eyebrow above the page title with an
+  optional right-aligned actions slot (the caseload's view switcher + Add patient now live there).
+- New `ProviderIdentityChip` atom + `DEMO_PROVIDER` constant (Dr. Jamie Kim · BCBA · Lead) — the no-auth
+  signed-in clinician stand-in (D7).
+- `sidebarCollapsed` added to `usePreferencesStore` as persisted layout state, kept **out** of the shared
+  `UserPreferences` contract and untouched by `reset()` (it is layout, not a themeable preference).
+- New layout tokens (`finniLayout`: sidebar widths + content max-width) exposed as `--finni-sidebar-w`,
+  `--finni-sidebar-w-collapsed`, `--finni-content-max-w`. +9 web tests (AppShell 6, PageHeader 3 → 93).

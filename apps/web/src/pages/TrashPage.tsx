@@ -1,22 +1,18 @@
 import { useMemo, useState } from 'react';
 import { Alert, Button, Empty, Skeleton, Typography } from 'antd';
-import { useNavigate } from 'react-router-dom';
 import { RepositoryScope } from '@finni/shared';
 import type { PatientWithRelations } from '@finni/shared';
-import { BrandLogo } from '@/components/atoms/BrandLogo';
+import { PageHeader } from '@/components/molecules/PageHeader';
 import { ErrorBoundary } from '@/components/molecules/ErrorBoundary';
 import { CaseloadTableView } from '@/components/organisms/CaseloadTableView';
 import { PatientEditDrawer } from '@/components/organisms/PatientEditDrawer';
 import { usePatientListQuery } from '@/queries/patientQueries';
-import { useTrashPageStyles } from '@/pages/TrashPage.styles';
 
 const SKELETON_ROWS = 4;
 
 // Trash: only soft-deleted patients, always the table view (no card/board). Each row's actions menu
 // offers Restore or permanent delete. Lives off Settings, separate from the active caseload.
 export function TrashPage(): JSX.Element {
-  const { styles } = useTrashPageStyles();
-  const navigate = useNavigate();
   const query = usePatientListQuery(RepositoryScope.IncludeDeleted);
   // The include-deleted scope returns everything; keep only the genuinely soft-deleted here.
   const deleted = useMemo(
@@ -57,21 +53,13 @@ export function TrashPage(): JSX.Element {
   };
 
   return (
-    <div className={styles.page}>
-      <header className={styles.header}>
-        <BrandLogo />
-        <Typography.Title level={3} className={styles.title}>
-          Trash
-        </Typography.Title>
-        <nav className={styles.nav}>
-          <Button onClick={() => navigate('/')}>Back to caseload</Button>
-        </nav>
-      </header>
+    <>
+      <PageHeader title="Trash" />
       <Typography.Paragraph type="secondary">
         Soft-deleted patients are purged 30 days after deletion. Restore them or delete permanently.
       </Typography.Paragraph>
       <ErrorBoundary fallbackTitle="Trash could not be displayed">{renderContent()}</ErrorBoundary>
       <PatientEditDrawer patient={editingPatient} open={editOpen} onClose={() => setEditOpen(false)} />
-    </div>
+    </>
   );
 }

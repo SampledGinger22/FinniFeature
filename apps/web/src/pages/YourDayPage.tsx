@@ -1,20 +1,15 @@
 import { Alert, Button, Empty, Skeleton } from 'antd';
-import { Typography } from 'antd';
-import { useNavigate } from 'react-router-dom';
 import { RepositoryScope } from '@finni/shared';
-import { BrandLogo } from '@/components/atoms/BrandLogo';
+import { PageHeader } from '@/components/molecules/PageHeader';
 import { ErrorBoundary } from '@/components/molecules/ErrorBoundary';
 import { YourDaySummary } from '@/components/organisms/YourDaySummary';
 import { usePatientListQuery } from '@/queries/patientQueries';
-import { useYourDayPageStyles } from '@/pages/YourDayPage.styles';
 
 const SKELETON_ROWS = 4;
 
 // At-a-glance daily summary over the active caseload. Mirrors the explicit loading/error/empty/data
 // states from CaseloadView; wraps the data region in an ErrorBoundary for per-widget resilience.
 export function YourDayPage(): JSX.Element {
-  const { styles } = useYourDayPageStyles();
-  const navigate = useNavigate();
   const query = usePatientListQuery(RepositoryScope.Active);
 
   const renderContent = (): JSX.Element => {
@@ -54,18 +49,9 @@ export function YourDayPage(): JSX.Element {
   };
 
   return (
-    <div className={styles.page}>
-      <header className={styles.header}>
-        <BrandLogo />
-        <Typography.Title level={3} className={styles.title}>
-          Your day
-        </Typography.Title>
-        <nav className={styles.nav}>
-          <Button onClick={() => navigate('/')}>Back to caseload</Button>
-        </nav>
-      </header>
-
-      <div className={styles.content}>{renderContent()}</div>
-    </div>
+    <>
+      <PageHeader title="Your day" />
+      {renderContent()}
+    </>
   );
 }

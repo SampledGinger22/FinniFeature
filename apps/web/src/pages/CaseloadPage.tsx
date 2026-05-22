@@ -1,10 +1,9 @@
 import { useState } from 'react';
-import { Button, Space, Typography } from 'antd';
-import { SettingOutlined } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
+import { Button, Space } from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
 import type { PatientWithRelations } from '@finni/shared';
-import { BrandLogo } from '@/components/atoms/BrandLogo';
 import { CaseloadViewSwitcher } from '@/components/molecules/CaseloadViewSwitcher';
+import { PageHeader } from '@/components/molecules/PageHeader';
 import { ErrorBoundary } from '@/components/molecules/ErrorBoundary';
 import { CaseloadFilterBar } from '@/components/organisms/CaseloadFilterBar';
 import { CaseloadView } from '@/components/organisms/CaseloadView';
@@ -13,14 +12,11 @@ import { PatientEditDrawer } from '@/components/organisms/PatientEditDrawer';
 import { useCaseloadStore } from '@/state/useCaseloadStore';
 import { useFilteredPatients } from '@/hooks/useFilteredPatients';
 import { usePatientListQuery } from '@/queries/patientQueries';
-import { useCaseloadPageStyles } from '@/pages/CaseloadPage.styles';
 
 // The caseload workspace: scope (a server dimension) drives the query; the hero filters then run
 // client-side over that loaded set, feeding one filtered result to whichever view is active. Each
 // region has its own error boundary so one failing widget never blanks the page (§8).
 export function CaseloadPage(): JSX.Element {
-  const { styles } = useCaseloadPageStyles();
-  const navigate = useNavigate();
   const scope = useCaseloadStore((state) => state.scope);
   const query = usePatientListQuery(scope);
   const { patients, facets, totalLoaded, matchCount } = useFilteredPatients(query.data);
@@ -35,29 +31,22 @@ export function CaseloadPage(): JSX.Element {
   };
 
   return (
-    <div className={styles.page}>
-      <header className={styles.header}>
-        <BrandLogo />
-        <Typography.Title level={3} className={styles.title}>
-          Caseload
-        </Typography.Title>
-        <nav className={styles.nav}>
-          <Button onClick={() => navigate('/your-day')}>Your day</Button>
-          <Button icon={<SettingOutlined />} aria-label="Settings" onClick={() => navigate('/settings')} />
-        </nav>
-      </header>
+    <>
+      <PageHeader
+        title="Caseload"
+        actions={
+          <Space>
+            <CaseloadViewSwitcher />
+            <Button type="primary" icon={<PlusOutlined />} onClick={() => setCreateOpen(true)}>
+              Add patient
+            </Button>
+          </Space>
+        }
+      />
 
-      <div className={styles.toolbar}>
-        <ErrorBoundary fallbackTitle="Filters are unavailable">
-          <CaseloadFilterBar facets={facets} totalLoaded={totalLoaded} matchCount={matchCount} />
-        </ErrorBoundary>
-        <Space>
-          <CaseloadViewSwitcher />
-          <Button type="primary" onClick={() => setCreateOpen(true)}>
-            Add patient
-          </Button>
-        </Space>
-      </div>
+      <ErrorBoundary fallbackTitle="Filters are unavailable">
+        <CaseloadFilterBar facets={facets} totalLoaded={totalLoaded} matchCount={matchCount} />
+      </ErrorBoundary>
 
       <ErrorBoundary fallbackTitle="The caseload could not be displayed">
         <CaseloadView
@@ -71,6 +60,6 @@ export function CaseloadPage(): JSX.Element {
 
       <PatientEditDrawer patient={editingPatient} open={editOpen} onClose={() => setEditOpen(false)} />
       <PatientCreateDrawer open={createOpen} onClose={() => setCreateOpen(false)} />
-    </div>
+    </>
   );
 }

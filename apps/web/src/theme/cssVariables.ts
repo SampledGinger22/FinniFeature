@@ -1,5 +1,5 @@
 import type { ThemePalette } from '@finni/shared';
-import { finniAvatarSilhouette, finniRadius, finniSpacing, finniStatusColors } from '@/theme/finniTokens';
+import { finniAvatarSilhouette, finniLayout, finniRadius, finniSpacing, finniStatusColors } from '@/theme/finniTokens';
 
 // Bridges tokens that antd's theme object does not carry (status colors, radii, spacing) to
 // :root custom properties, so custom primitives reference var(--finni-*) instead of raw values
@@ -15,6 +15,9 @@ export const buildFinniCssVariables = (palette: ThemePalette): Record<string, st
     '--finni-space-md': `${finniSpacing.md}px`,
     '--finni-space-lg': `${finniSpacing.lg}px`,
     '--finni-space-xl': `${finniSpacing.xl}px`,
+    '--finni-sidebar-w': `${finniLayout.sidebarWidth}px`,
+    '--finni-sidebar-w-collapsed': `${finniLayout.sidebarCollapsedWidth}px`,
+    '--finni-content-max-w': `${finniLayout.contentMaxWidth}px`,
     '--finni-avatar-silhouette': finniAvatarSilhouette,
   };
   for (const [status, set] of Object.entries(finniStatusColors[palette])) {

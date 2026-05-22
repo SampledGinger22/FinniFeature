@@ -21,10 +21,10 @@ function renderSettingsPage(): ReturnType<typeof renderWithProviders> {
 }
 
 describe('SettingsPage', () => {
-  it('renders page heading and a back-to-caseload button', () => {
+  it('renders the page header with eyebrow and title', () => {
     renderSettingsPage();
     expect(screen.getByRole('heading', { name: /settings/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /back to caseload/i })).toBeInTheDocument();
+    expect(screen.getByText(/provider workspace/i)).toBeInTheDocument();
   });
 
   it('renders all preference card headings', () => {
