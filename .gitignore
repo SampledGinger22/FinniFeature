@@ -17,6 +17,9 @@ build/
 .env.*
 !.env.example
 
+# Claude Code local settings (machine-specific permission allowlist; committed .claude/ is shared)
+.claude/settings.local.json
+
 # Logs
 *.log
 npm-debug.log*

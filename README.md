@@ -9,6 +9,11 @@ in two clicks.
 > throwaway. Architecture decisions were made as if for a real system. It implements
 > HIPAA-*aware* patterns but makes no claim of HIPAA certification (see
 > [Compliance](#compliance--privacy)).
+>
+> **Trademark:** "Finni", the Finni name, and the Finni logo are the property of Finni Health —
+> not of the repository author (Mason Britsch). This is an independent, unaffiliated
+> demonstration project, not endorsed by or affiliated with Finni Health (see
+> [Trademark & attribution](#trademark--attribution)).
 
 ---
 
@@ -173,3 +178,16 @@ Targets WCAG 2.1 AA: keyboard navigation, focus management in drawers, screen-re
 labeling on the caseload views, and verified contrast on both the default and
 reduced-eye-strain palettes. A dyslexia-friendly font and adjustable font sizing are
 available in settings.
+
+---
+
+## Trademark & attribution
+
+"Finni", the Finni name, the Finni logo, and the Finni brand identity are trademarks and the
+property of **Finni Health** — not of the repository author (Mason Britsch). The logo asset
+(`apps/web/src/assets/brand/finni-logo.svg`) and the brand-derived color palette are included
+solely to present this demonstration in its intended product context.
+
+This project is an **independent, unaffiliated demonstration build** — not endorsed by,
+affiliated with, or sponsored by Finni Health. All other product names, logos, and brands are
+the property of their respective owners.
