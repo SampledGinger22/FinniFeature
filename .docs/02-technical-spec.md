@@ -62,6 +62,15 @@ Vercel runs the static frontend and the serverless functions. There is **no
 long-running Express server** — route handlers are thin Vercel functions that delegate
 to the service layer. Docker is for reproducible local development, not deployment.
 
+**Single-project topology (D59).** One Vercel project, **Root Directory `apps/api`**. The
+functions stay at the conventional `apps/api/api/*` so Vercel's filesystem routing resolves
+the dynamic `[id]`/`[action]` segments natively. The build (`apps/api/vercel.json`) builds the
+SPA from the repo root (`turbo run build --filter=@finni/web`) and copies `apps/web/dist` into
+`apps/api/public`, which Vercel serves as the static root on the **same origin** — so the
+client's relative `/api/*` calls resolve without CORS or a cross-project rewrite. A
+`/((?!api/).*) → /index.html` rewrite gives the React-Router SPA its deep-link fallback while
+leaving `/api/*` to the functions.
+
 **Local dev transport (D47).** Since there is no Vercel runtime locally, `@finni/api` ships a
 small Node-`http` dev server (`bun run dev`, Vite proxies `/api` to it) that adapts the *same*
 framework-agnostic route-core the Vercel functions use. It runs against Postgres when

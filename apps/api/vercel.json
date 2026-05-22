@@ -1,9 +1,15 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
+  "installCommand": "cd ../.. && bun install",
+  "buildCommand": "cd ../.. && turbo run build --filter=@finni/web && rm -rf apps/api/public && cp -r apps/web/dist apps/api/public",
+  "outputDirectory": "public",
   "functions": {
     "api/**/*.ts": {
       "runtime": "@vercel/node@5.1.0"
     }
-  }
+  },
+  "rewrites": [
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
+  ]
 }

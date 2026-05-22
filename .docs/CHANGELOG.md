@@ -382,3 +382,18 @@
   reviewer; the decision log + this changelog remain the authoritative evolution record.
 - Note: `.claude/agents/slice-parallelizer.md` still references building a Board view; editing agent files
   is harness-blocked as self-modification, so it is left for the user to update.
+
+### Step 7 — Vercel deployment topology (D59)
+- `apps/api/vercel.json` now defines the full single-project deploy: `installCommand`/`buildCommand` run
+  from the repo root (`turbo run build --filter=@finni/web`) and copy `apps/web/dist` into
+  `apps/api/public` (served as `outputDirectory`), keeping the functions at the conventional
+  `apps/api/api/*`. Added a `/((?!api/).*) → /index.html` rewrite for the React-Router SPA fallback.
+  *Why:* the client calls relative `/api/*`, so the SPA and functions must share one origin in
+  production — a single project rooted at `apps/api` does this without a cross-project rewrite, and the
+  conventional `api/` location preserves native dynamic-segment (`[id]`/`[action]`) routing. Deploy
+  requires Root Directory `apps/api` and env vars `DATABASE_URL` (pooled), `PHI_ENCRYPTION_KEY`,
+  `USE_HEADSHOTS`, and build-time `VITE_USE_HEADSHOTS`. `apps/api/public` is gitignored.
+- `db/client.ts` now configures `postgres()` with `prepare: false` and `max: 1`. *Why:* the production
+  `DATABASE_URL` is a pgbouncer transaction-mode pooler, which doesn't support named prepared statements;
+  one connection per serverless instance avoids exhausting the pool. Safe for the local Postgres dev path
+  too; tests use pglite and don't touch this client.

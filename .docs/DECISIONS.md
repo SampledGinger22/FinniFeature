@@ -308,3 +308,19 @@ graded (UI/UX and code quality for patient management).
   edit never persists; street-level address PHI and contact values are re-encrypted in the repository
   layer (D39). Phone is upsert/remove (cleared → deleted, absent → inserted). Contacts are matched by
   type (the primary email; the single phone) — the model stays one-email-one-phone for the edit form.
+
+### Step 7 — Deployment
+- **D59 — Single Vercel project, rooted at `apps/api`, serves SPA + functions on one origin.** The web
+  client calls the API with relative paths (`/api/patients`), so the static SPA and the serverless
+  functions must share an origin in production. Rather than a second project + cross-project rewrite (two
+  env-var sets, a hardcoded API URL), one project is rooted at `apps/api`: the functions stay at the
+  conventional `apps/api/api/*` so Vercel's filesystem routing resolves the dynamic `[id]`/`[action]`
+  segments natively, and the build copies the built SPA (`apps/web/dist`) into `apps/api/public` for
+  Vercel to serve as the static root. *Why `apps/api` as root, not the repo root:* dynamic-segment routing
+  is only reliable when `api/` sits at the deploy root; a repo-root deploy would need brittle manual
+  rewrites to map `/api/*` and recover the `[id]` params. A `/((?!api/).*) → /index.html` rewrite supplies
+  the React-Router deep-link fallback. Env vars split onto the one project: runtime `DATABASE_URL`
+  (pooled) + `PHI_ENCRYPTION_KEY` + `USE_HEADSHOTS` for the functions, build-time `VITE_USE_HEADSHOTS`
+  for the SPA. `apps/api/public` is a build artifact (gitignored). Because `DATABASE_URL` points at a
+  pgbouncer transaction-mode pooler, the `postgres()` client (`db/client.ts`) sets `prepare: false`
+  (named prepared statements are unsupported there) and `max: 1` (one connection per function instance).
