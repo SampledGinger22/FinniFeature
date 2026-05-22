@@ -403,3 +403,9 @@
   8 GB build box — the app bundles into one ~1.49 MB chunk. Build-only; the Windows local build is
   unaffected. Durable follow-up: code-split the bundle (manualChunks/route-level lazy) to cut peak memory
   and the >500 kB chunk.
+- Pinned Node to `22.x` (`engines` in root + `apps/api/package.json`) and declared the runtime env vars
+  (`DATABASE_URL`, `PHI_ENCRYPTION_KEY`, `USE_HEADSHOTS`) in `turbo.json` `globalPassThroughEnv`. *Why:*
+  the deploy failed with "invalid Node.js Version 24.x" — Vercel fell back to the project's Node setting
+  because the `apps/api` root package.json declared none; `22.x` is the supported runtime. The env
+  declaration clears turbo's "set on Vercel but missing from turbo.json" build warning (`VITE_USE_HEADSHOTS`
+  is auto-handled by turbo's Vite inference).

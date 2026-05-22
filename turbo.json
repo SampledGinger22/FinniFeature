@@ -1,6 +1,6 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalPassThroughEnv": ["NODE_OPTIONS"],
+  "globalPassThroughEnv": ["NODE_OPTIONS", "DATABASE_URL", "PHI_ENCRYPTION_KEY", "USE_HEADSHOTS"],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
