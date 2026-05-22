@@ -51,8 +51,8 @@ These are enforced by lint and hooks. Do not work around them; fix the code.
 
 ## UI rules
 - Atomic design. One canonical component per concept.
-- Three caseload views (card/table/board) over ONE data + filter layer. Switching views
-  preserves filters.
+- Two caseload views (card/table) over ONE data + filter layer. Switching views preserves
+  filters and never refetches. Board view was removed (D57).
 - Create = bottom drawer; Edit = right drawer.
 - Every widget/view has its own error boundary + skeleton + empty state. One widget
   failing must never blank the page.

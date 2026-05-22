@@ -48,7 +48,7 @@ Guiding principles, in priority order:
 | ORM | Drizzle | Lightweight, excellent types, sits naturally over the repository pattern. |
 | Database | Vercel Postgres (Neon) | Free tier, serverless-friendly, idiomatic Drizzle. |
 | Dates | dayjs (+ utc, +timezone plugins) | Small, immutable; centralized in `DateTimeUtil`. |
-| Drag & drop | dnd-kit | Accessible, modern, pairs with antd. Board view + widget reorder. |
+| ~~Drag & drop~~ | ~~dnd-kit~~ | Removed with the board view (D57); the caseload ships Cards + Table only. |
 | Cache | in-memory LRU (`lru-cache`) | Behind a cache interface; swappable for Redis later. |
 | Logging | Winston (+ PHI redaction) | Structured logs; never logs PHI. |
 | Monorepo | Turborepo + Bun workspaces | Shared types package; fast installs. |
@@ -308,17 +308,18 @@ convention, D38).
 Components organized atoms → molecules → organisms → templates → pages. A button is
 *the* button everywhere (supports rule C4/uniqueness and consistency).
 
-### The three caseload views (one data + filter layer)
-Card / Table / Board all read from the same TanStack Query data and the same Zustand
-filter state. Switching views preserves filters and scroll context. Building three views
-over one data layer is deliberate — it both serves the demo and demonstrates clean
-separation of data from presentation.
+### The caseload views (one data + filter layer)
+The views all read from the same TanStack Query data and the same Zustand filter state.
+Switching views preserves filters and scroll context and never refetches. Building multiple
+views over one data layer is deliberate — it both serves the demo and demonstrates clean
+separation of data from presentation. A shared order-by (Name/Age/Status, default Name A→Z)
+also lives in the filter layer so both views render the same sequence.
 
 - **Card** (default): photo-forward `PatientAvatar`, status tag, locality, insurance
   indicator when `has_insurance`.
 - **Table**: dense, sortable, the workhorse for compound filtering.
-- **Board**: dnd-kit columns by status; six columns scroll horizontally below laptop
-  width (standard kanban behavior).
+- **Board** *(removed — D57)*: was a dnd-kit kanban by status; judged not to earn its
+  complexity during the redesign, so the caseload now ships **Cards + Table only**.
 
 ### Filtering (the hero)
 Faceted filter bar: status (multi), location (region/city), age range (derived). Live

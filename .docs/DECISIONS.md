@@ -22,7 +22,9 @@ graded (UI/UX and code quality for patient management).
   the narrowing is the product-thinking signal.
 - **D3 — "Your day" view kept in v1.** It carries the care-for-providers thesis. It leans on
   patient status (no appointment data exists yet); calendar-backed scheduling is logged as
-  the next step.
+  the next step. **(Amended 2026-05-21: the page is built but **hidden in the current build**
+  — nav entry + route disabled — pending completion, since it isn't demo-ready. The page and
+  its tests stay in the repo for a one-line re-enable. See CHANGELOG.)**
 
 ### Architecture
 - **D4 — Backend as Vercel serverless functions, not Express.** The deploy target is Vercel;
@@ -250,7 +252,8 @@ graded (UI/UX and code quality for patient management).
   rule). The const-object enum now lives in `packages/shared/src/enums/repositoryScope.ts`; the API's
   `@/enums/repositoryScope` re-exports it so existing API imports are untouched. Supersedes the
   API-local definition from Step 2.
-- **D52 — One client-side hero filter + one shared filter/view store feeds all three views.** Scope is
+- **D52 — One client-side hero filter + one shared filter/view store feeds all the views** (three at the
+  time; two after the board was removed in D57). Scope is
   the only *server* dimension (it changes which rows return, so it is the query key → a scope change
   refetches). The hero facets — status (multi) × region × city × age range × **name search** — run
   **client-side** over the loaded scoped set as one pure function (`applyCaseloadFilters`), so they are

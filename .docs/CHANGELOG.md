@@ -369,3 +369,16 @@
     (WCAG 2.4.3); wired into both `PatientCreateDrawer` and `PatientEditDrawer`. +2 web tests.
 - Refreshed the stale `kitchen-sink` visual-regression baseline to the shipped redesign (the snapshot
   predated it). E2E: 10 passing. Unit: web 121 / api 31 / shared 40.
+
+### Documentation reconciliation
+- Swept all docs for drift against the shipped build and fixed it: `README.md`, `CLAUDE.md`, the product
+  brief (§01) and technical spec (§08 + tech-stack table) no longer present the **board view** or
+  **dnd-kit** as live (removed in D57 — now marked accordingly), and "Your day" is labelled **hidden in
+  the current build**. `DECISIONS.md` D3 amended (Your day hidden) and D52 caveated (two views after D57).
+- Fixed `README.md` "Running locally": leads with the real zero-config `bun run dev` (pglite, no Docker/
+  secrets); the optional Postgres path now uses the correct `docker/docker-compose.yml`, `bun run db:push`,
+  and `bun run seed` (the prior `docker/compose.yml`, `db:migrate`, `db:seed` never existed); E2E is run
+  from `apps/web`. Lifecycle label aligned to "Waitlist". *Why:* docs must match reality for a buyer/
+  reviewer; the decision log + this changelog remain the authoritative evolution record.
+- Note: `.claude/agents/slice-parallelizer.md` still references building a Board view; editing agent files
+  is harness-blocked as self-modification, so it is left for the user to update.

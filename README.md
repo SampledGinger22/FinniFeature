@@ -14,15 +14,15 @@ in two clicks.
 
 ## What it does
 
-- **Three views of one caseload** — card (warm, photo-forward), table (dense, sortable),
-  and board (kanban by status, drag to move) — all sharing the same data and filters.
-- **Compound filtering** — filter by status, location, and age simultaneously with live
-  result counts. This is the hero feature.
+- **Two views of one caseload** — card (warm, photo-forward) and table (dense, sortable) —
+  sharing the same data, filters, and sort. (A board/kanban view was prototyped and removed.)
+- **Compound filtering** — filter by status, location, age, and insurance simultaneously
+  with live result counts, plus a shared order-by. This is the hero feature.
 - **Full patient management** — create (bottom drawer), edit (right drawer), archive,
   soft-delete with a 30-day recovery window.
-- **Six-stage lifecycle** — Inquiry → Waitlisted → Onboarding → Active → Paused → Churned.
-- **"Your day" view** — a care-forward overview of who needs attention, leading with people
-  rather than metrics.
+- **Six-stage lifecycle** — Inquiry → Waitlist → Onboarding → Active → Paused → Churned.
+- **"Your day" view** *(in progress — hidden in this build)* — a care-forward overview of
+  who needs attention, leading with people rather than metrics.
 - **Personalization** — font size, font family (including a dyslexia-friendly option), a
   reduced-eye-strain palette, layout density, and timezone — persisted per device.
 
@@ -41,7 +41,6 @@ A fuller, non-technical description is in [`.docs/01-product-brief.md`](.docs/01
 | Validation | Zod (shared schemas, inferred types) |
 | Database | Vercel Postgres (Neon) via Drizzle ORM |
 | Dates | dayjs, centralized in `DateTimeUtil` |
-| Drag & drop | dnd-kit |
 | Logging | Winston (with PHI redaction) |
 | Tests | Vitest + React Testing Library (unit/component) · Playwright (E2E) |
 | Monorepo | Turborepo + Bun workspaces |
@@ -67,25 +66,32 @@ The authoritative architecture is [`.docs/02-technical-spec.md`](.docs/02-techni
 
 ## Running locally
 
-> Prerequisites: Bun, Docker (for local Postgres), Node 20+.
+> Prerequisites: Bun, Node 20+. Docker is **optional** (only for a persistent local Postgres).
+
+**Zero-config (recommended for a demo):**
 
 ```bash
-# 1. Install
 bun install
-
-# 2. Start local Postgres
-docker compose -f docker/compose.yml up -d
-
-# 3. Apply schema + seed realistic demo data
-bun run db:migrate
-bun run db:seed
-
-# 4. Run the app (frontend + API)
-bun run dev
+bun run dev          # web + API; the API boots an in-memory pglite, seeded on startup
 ```
 
-The seed data is deterministic — the same realistic caseload every run, spanning all six
-statuses and multiple US states so the location and age filters have signal.
+`bun run dev` needs no database, secrets, or Docker — the API spins up an in-process pglite
+and seeds it on boot, and Vite proxies `/api` to it. Open the printed localhost URL.
+
+**Optional — a persistent Postgres (Docker):**
+
+```bash
+docker compose -f docker/docker-compose.yml up -d        # Postgres on host port 5434
+
+# from apps/api, with DATABASE_URL + PHI_ENCRYPTION_KEY set (see .env.example):
+cd apps/api
+bun run db:push      # apply the Drizzle schema
+bun run seed         # seed realistic demo data
+```
+
+Point `DATABASE_URL` at that Postgres (or a Neon instance) and `bun run dev` uses it instead
+of pglite. The seed is deterministic — the same realistic caseload every run, spanning all
+six statuses and multiple US states so the location and age filters have signal.
 
 ### Demo controls
 A clearly-separated "Demo controls" area lets a reviewer reset state: **purge** expired
@@ -95,8 +101,8 @@ production build.
 
 ### Tests
 ```bash
-bun run test          # Vitest unit + component
-bun run test:e2e      # Playwright end-to-end
+bun run test                       # Vitest unit + component (all packages, via turbo)
+cd apps/web && bun run test:e2e    # Playwright end-to-end (boots the zero-config dev servers)
 ```
 
 ---

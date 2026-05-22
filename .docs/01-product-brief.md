@@ -36,7 +36,9 @@ person doing emotionally demanding work. That belief shows up in concrete choice
 - **Patients are people, not rows.** The default view shows patient cards with a
   photo, so a caseload feels human at a glance — not like a database table.
 - **The day opens on people, not metrics.** A "Your day" view leads with who needs
-  attention today, framed warmly, rather than a wall of numbers.
+  attention today, framed warmly, rather than a wall of numbers. _(Built but **hidden in
+  the current build** pending completion — its nav entry and route are disabled; the page
+  and tests remain in the repo.)_
 - **The interface is calm.** Warm, rounded, low-strain visuals adapted from Finni's
   own brand — plus an eye-strain palette and dyslexia-friendly font option for the
   long hours providers actually work.
@@ -49,15 +51,15 @@ This is the thing a reviewer should _feel_, not just read.
 
 Filter the caseload by status, location, and age simultaneously, with live result
 counts as filters are applied. The "intake patients in New York under 30" question is
-answerable in seconds. Three ways to look at the same caseload:
+answerable in seconds. Two ways to look at the same caseload:
 
 - **Card view** (default) — warm, human, photo-forward. Best for browsing.
 - **Table view** — dense and sortable. Best for the precise multi-filter question.
-- **Board view** — patients arranged in columns by status, draggable between them.
-  Best for seeing the shape of a caseload and moving someone forward a stage.
+- _**Board view** (kanban by status) was prototyped and then **removed (D57)** — it didn't
+  earn its complexity for this caseload, which now ships Card + Table only._
 
-All three read from the same data and the same filters — switching views never loses
-your place or your filters.
+Both read from the same data and the same filters — switching views never loses your place
+or your filters, and never refetches.
 
 ### Manage patient records
 
