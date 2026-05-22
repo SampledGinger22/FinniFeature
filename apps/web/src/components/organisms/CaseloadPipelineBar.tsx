@@ -39,7 +39,6 @@ export function CaseloadPipelineBar({ patients, matchCount }: CaseloadPipelineBa
               type="button"
               className={cx(styles.segment, active && styles.segmentActive)}
               style={{
-                flexGrow: segment.count,
                 background: `var(--finni-status-${segment.status}-bg)`,
                 color: `var(--finni-status-${segment.status}-fg)`,
               }}
