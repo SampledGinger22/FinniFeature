@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { cleanup, screen, within } from '@testing-library/react';
-import userEvent, { PointerEventsCheckLevel } from '@testing-library/user-event';
+import { cleanup, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { PatientStatus, RepositoryScope } from '@finni/shared';
 import { renderWithProviders } from '@/test/renderWithProviders';
 import { useCaseloadStore } from '@/state/useCaseloadStore';
@@ -47,13 +47,31 @@ describe('CaseloadFilterBar', () => {
     expect(useCaseloadStore.getState().filters.region).toBe('TX');
   });
 
-  it('switches the scope to include archived (trash lives on its own page, not here)', async () => {
-    // antd Segmented disables pointer-events on its hidden radios; skip the jsdom check.
-    const user = userEvent.setup({ pointerEventsCheck: PointerEventsCheckLevel.Never });
+  it('writes min and max age into the store from the number inputs', async () => {
     renderWithProviders(<CaseloadFilterBar facets={facets} totalLoaded={5} matchCount={5} />);
 
-    expect(screen.queryByRole('radio', { name: 'Trash' })).not.toBeInTheDocument();
-    await user.click(screen.getByRole('radio', { name: 'Archived' }));
+    await userEvent.type(screen.getByRole('spinbutton', { name: 'Minimum age' }), '5');
+    await userEvent.type(screen.getByRole('spinbutton', { name: 'Maximum age' }), '12');
+
+    expect(useCaseloadStore.getState().filters.ageMin).toBe(5);
+    expect(useCaseloadStore.getState().filters.ageMax).toBe(12);
+  });
+
+  it('writes the insurance facet into the store', async () => {
+    renderWithProviders(<CaseloadFilterBar facets={facets} totalLoaded={5} matchCount={5} />);
+
+    await userEvent.click(screen.getByRole('combobox', { name: 'Insurance' }));
+    await userEvent.click(await screen.findByTitle('not insured'));
+
+    expect(useCaseloadStore.getState().filters.insured).toBe(false);
+  });
+
+  it('toggles the scope to include archived via the Show archived checkbox', async () => {
+    renderWithProviders(<CaseloadFilterBar facets={facets} totalLoaded={5} matchCount={5} />);
+
+    const checkbox = screen.getByRole('checkbox', { name: 'Show archived' });
+    expect(checkbox).not.toBeChecked();
+    await userEvent.click(checkbox);
 
     expect(useCaseloadStore.getState().scope).toBe(RepositoryScope.IncludeArchived);
   });
@@ -70,14 +88,5 @@ describe('CaseloadFilterBar', () => {
     const filters = useCaseloadStore.getState().filters;
     expect(filters.searchText).toBe('');
     expect(filters.region).toBeNull();
-  });
-
-  it('omits the age control when no age bounds are present', () => {
-    const noAgeFacets: CaseloadFacets = { regions: ['NY'], cities: ['Buffalo'], ageBounds: null };
-    const { container } = renderWithProviders(
-      <CaseloadFilterBar facets={noAgeFacets} totalLoaded={1} matchCount={1} />,
-    );
-
-    expect(within(container).queryByText('Age')).not.toBeInTheDocument();
   });
 });

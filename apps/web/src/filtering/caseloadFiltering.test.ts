@@ -56,6 +56,15 @@ describe('applyCaseloadFilters', () => {
     expect(ids(applyCaseloadFilters(sample, filters({ ageMin: 40 })))).toEqual(['older']);
   });
 
+  it('filters by insurance status (null means no constraint)', () => {
+    const insured = buildPatient({ id: 'ins', hasInsurance: true });
+    const uninsured = buildPatient({ id: 'unins', hasInsurance: false });
+    const set = [insured, uninsured];
+    expect(ids(applyCaseloadFilters(set, filters({ insured: true })))).toEqual(['ins']);
+    expect(ids(applyCaseloadFilters(set, filters({ insured: false })))).toEqual(['unins']);
+    expect(ids(applyCaseloadFilters(set, filters({ insured: null })))).toEqual(['ins', 'unins']);
+  });
+
   it('searches case-insensitively across name AND location (not name-only)', () => {
     expect(ids(applyCaseloadFilters(sample, filters({ searchText: 'elena' })))).toEqual(['young']); // middle name
     expect(ids(applyCaseloadFilters(sample, filters({ searchText: 'park' })))).toEqual(['older']); // last name

@@ -230,3 +230,15 @@
 - New `derivePatientAttention` pure helper + `patientInitials` helper. Attention is **derived** from real
   signals (status, insurance) plus a stable id-hash — no scheduling/audit data exists yet (D56). +9 web
   tests (attention 5, avatar 1, table 3 → 102).
+
+### Visual redesign — sentence-style filter bar
+- **`CaseloadFilterBar` restyled into a sentence** in a rounded panel: "Show me [status] patients in
+  [region] [city] aged [min]–[max] [insurance]", with the name search + a **Show archived** checkbox +
+  live count + Reset on a second row. Same store wiring; all three views still share one filter layer.
+- **Age** control swapped from a range `Slider` to two integer `InputNumber` fields (min/max, min 0) so a
+  single exact age is filterable; the store already used nullable int `ageMin`/`ageMax`.
+- **Scope** control swapped from an Active/Archived `Segmented` to a single **Show archived** checkbox
+  (default off → `RepositoryScope.Active`; checked → `IncludeArchived`). Trash stays on its own page.
+- **New insurance filter facet** (`filters.insured: boolean | null`; any / insured / not insured) added to
+  `applyCaseloadFilters` + the store — a general facet, extends D52. +1 filtering test; filter-bar tests
+  updated for the new controls.

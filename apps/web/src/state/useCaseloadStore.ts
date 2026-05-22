@@ -12,6 +12,7 @@ export interface CaseloadFilters {
   city: string | null;
   ageMin: number | null;
   ageMax: number | null;
+  insured: boolean | null;
   searchText: string;
 }
 
@@ -21,6 +22,7 @@ export const EMPTY_FILTERS: CaseloadFilters = {
   city: null,
   ageMin: null,
   ageMax: null,
+  insured: null,
   searchText: '',
 };
 
@@ -41,6 +43,7 @@ interface CaseloadState {
   setRegion: (region: string | null) => void;
   setCity: (city: string | null) => void;
   setAgeRange: (min: number | null, max: number | null) => void;
+  setInsured: (insured: boolean | null) => void;
   setSearchText: (value: string) => void;
   resetFilters: () => void;
 }
@@ -65,6 +68,7 @@ export const useCaseloadStore = create<CaseloadState>()((set) => ({
   setRegion: (region) => set((state) => ({ filters: { ...state.filters, region } })),
   setCity: (city) => set((state) => ({ filters: { ...state.filters, city } })),
   setAgeRange: (ageMin, ageMax) => set((state) => ({ filters: { ...state.filters, ageMin, ageMax } })),
+  setInsured: (insured) => set((state) => ({ filters: { ...state.filters, insured } })),
   setSearchText: (searchText) => set((state) => ({ filters: { ...state.filters, searchText } })),
   resetFilters: () => set({ filters: EMPTY_FILTERS }),
 }));

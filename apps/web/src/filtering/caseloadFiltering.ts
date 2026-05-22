@@ -57,6 +57,10 @@ function patientSearchHaystack(patient: PatientWithRelations): string {
     .toLowerCase();
 }
 
+function matchesInsurance(patient: PatientWithRelations, insured: boolean | null): boolean {
+  return insured === null || patient.hasInsurance === insured;
+}
+
 function matchesSearch(patient: PatientWithRelations, searchText: string): boolean {
   const needle = searchText.trim().toLowerCase();
   return needle === '' || patientSearchHaystack(patient).includes(needle);
@@ -72,6 +76,7 @@ export function applyCaseloadFilters(
       matchesRegion(patient, filters.region) &&
       matchesCity(patient, filters.city) &&
       matchesAge(patient, filters) &&
+      matchesInsurance(patient, filters.insured) &&
       matchesSearch(patient, filters.searchText),
   );
 }
