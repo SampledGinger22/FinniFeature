@@ -242,3 +242,12 @@
 - **New insurance filter facet** (`filters.insured: boolean | null`; any / insured / not insured) added to
   `applyCaseloadFilters` + the store — a general facet, extends D52. +1 filtering test; filter-bar tests
   updated for the new controls.
+
+### Visual redesign — caseload pipeline bar
+- **New `CaseloadPipelineBar` organism**: an eyebrow + live "N match · N total" count above a row of
+  status-tinted segments (one per status, widths proportional to count). Clicking a segment toggles that
+  status filter in the shared store (reuses `toggleStatus`); the active segment shows `aria-pressed`. Pure,
+  unit-tested `derivePipelineSegments` helper (parallels `caseloadBoard.ts`) counts the loaded set so the
+  bar shows the caseload's shape while filters narrow the rows. Sits between the filter bar and the views.
+- The live count moved here from `CaseloadFilterBar` (matches the reference); the filter bar no longer
+  takes `totalLoaded`/`matchCount`. +5 web tests (pipeline 4, helper 1).

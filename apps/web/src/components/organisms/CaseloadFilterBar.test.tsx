@@ -22,7 +22,7 @@ afterEach(() => {
 
 describe('CaseloadFilterBar', () => {
   it('writes the typed search text into the store', async () => {
-    renderWithProviders(<CaseloadFilterBar facets={facets} totalLoaded={5} matchCount={5} />);
+    renderWithProviders(<CaseloadFilterBar facets={facets} />);
 
     await userEvent.type(screen.getByLabelText('Search'), 'avery');
 
@@ -30,7 +30,7 @@ describe('CaseloadFilterBar', () => {
   });
 
   it('writes a selected status into the store', async () => {
-    renderWithProviders(<CaseloadFilterBar facets={facets} totalLoaded={5} matchCount={5} />);
+    renderWithProviders(<CaseloadFilterBar facets={facets} />);
 
     await userEvent.click(screen.getByRole('combobox', { name: 'Status' }));
     await userEvent.click(await screen.findByTitle('Onboarding'));
@@ -39,7 +39,7 @@ describe('CaseloadFilterBar', () => {
   });
 
   it('writes a selected region from the provided facets', async () => {
-    renderWithProviders(<CaseloadFilterBar facets={facets} totalLoaded={5} matchCount={5} />);
+    renderWithProviders(<CaseloadFilterBar facets={facets} />);
 
     await userEvent.click(screen.getByRole('combobox', { name: 'Region' }));
     await userEvent.click(await screen.findByTitle('TX'));
@@ -48,7 +48,7 @@ describe('CaseloadFilterBar', () => {
   });
 
   it('writes min and max age into the store from the number inputs', async () => {
-    renderWithProviders(<CaseloadFilterBar facets={facets} totalLoaded={5} matchCount={5} />);
+    renderWithProviders(<CaseloadFilterBar facets={facets} />);
 
     await userEvent.type(screen.getByRole('spinbutton', { name: 'Minimum age' }), '5');
     await userEvent.type(screen.getByRole('spinbutton', { name: 'Maximum age' }), '12');
@@ -58,7 +58,7 @@ describe('CaseloadFilterBar', () => {
   });
 
   it('writes the insurance facet into the store', async () => {
-    renderWithProviders(<CaseloadFilterBar facets={facets} totalLoaded={5} matchCount={5} />);
+    renderWithProviders(<CaseloadFilterBar facets={facets} />);
 
     await userEvent.click(screen.getByRole('combobox', { name: 'Insurance' }));
     await userEvent.click(await screen.findByTitle('not insured'));
@@ -67,7 +67,7 @@ describe('CaseloadFilterBar', () => {
   });
 
   it('toggles the scope to include archived via the Show archived checkbox', async () => {
-    renderWithProviders(<CaseloadFilterBar facets={facets} totalLoaded={5} matchCount={5} />);
+    renderWithProviders(<CaseloadFilterBar facets={facets} />);
 
     const checkbox = screen.getByRole('checkbox', { name: 'Show archived' });
     expect(checkbox).not.toBeChecked();
@@ -76,12 +76,10 @@ describe('CaseloadFilterBar', () => {
     expect(useCaseloadStore.getState().scope).toBe(RepositoryScope.IncludeArchived);
   });
 
-  it('renders the live count and clears every filter on reset', async () => {
+  it('clears every filter on reset', async () => {
     useCaseloadStore.getState().setSearchText('avery');
     useCaseloadStore.getState().setRegion('NY');
-    renderWithProviders(<CaseloadFilterBar facets={facets} totalLoaded={5} matchCount={2} />);
-
-    expect(screen.getByText('2 of 5')).toBeInTheDocument();
+    renderWithProviders(<CaseloadFilterBar facets={facets} />);
 
     await userEvent.click(screen.getByRole('button', { name: 'Reset filters' }));
 

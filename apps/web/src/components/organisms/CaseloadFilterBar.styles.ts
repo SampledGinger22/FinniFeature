@@ -49,8 +49,4 @@ export const useCaseloadFilterBarStyles = createStyles(({ css, token }) => ({
   spacer: css`
     flex: 1 1 auto;
   `,
-  count: css`
-    color: ${token.colorTextSecondary};
-    white-space: nowrap;
-  `,
 }));

@@ -6,6 +6,7 @@ import { CaseloadViewSwitcher } from '@/components/molecules/CaseloadViewSwitche
 import { PageHeader } from '@/components/molecules/PageHeader';
 import { ErrorBoundary } from '@/components/molecules/ErrorBoundary';
 import { CaseloadFilterBar } from '@/components/organisms/CaseloadFilterBar';
+import { CaseloadPipelineBar } from '@/components/organisms/CaseloadPipelineBar';
 import { CaseloadView } from '@/components/organisms/CaseloadView';
 import { PatientCreateDrawer } from '@/components/organisms/PatientCreateDrawer';
 import { PatientEditDrawer } from '@/components/organisms/PatientEditDrawer';
@@ -19,7 +20,7 @@ import { usePatientListQuery } from '@/queries/patientQueries';
 export function CaseloadPage(): JSX.Element {
   const scope = useCaseloadStore((state) => state.scope);
   const query = usePatientListQuery(scope);
-  const { patients, facets, totalLoaded, matchCount } = useFilteredPatients(query.data);
+  const { patients, facets, matchCount } = useFilteredPatients(query.data);
 
   const [editingPatient, setEditingPatient] = useState<PatientWithRelations | null>(null);
   const [editOpen, setEditOpen] = useState(false);
@@ -45,7 +46,11 @@ export function CaseloadPage(): JSX.Element {
       />
 
       <ErrorBoundary fallbackTitle="Filters are unavailable">
-        <CaseloadFilterBar facets={facets} totalLoaded={totalLoaded} matchCount={matchCount} />
+        <CaseloadFilterBar facets={facets} />
+      </ErrorBoundary>
+
+      <ErrorBoundary fallbackTitle="The pipeline is unavailable">
+        <CaseloadPipelineBar patients={query.data ?? []} matchCount={matchCount} />
       </ErrorBoundary>
 
       <ErrorBoundary fallbackTitle="The caseload could not be displayed">

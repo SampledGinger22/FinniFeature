@@ -9,8 +9,6 @@ import type { CaseloadFacets } from '@/filtering/caseloadFiltering';
 
 export interface CaseloadFilterBarProps {
   facets: CaseloadFacets;
-  totalLoaded: number;
-  matchCount: number;
 }
 
 const statusFilterOptions = Object.values(PatientStatus).map((status) => ({
@@ -42,7 +40,7 @@ function optionToInsured(value: string): boolean | null {
 // The hero compound filter (§9), laid out as a sentence: each control is general — it offers
 // exactly the facets present in the loaded set and writes straight to the caseload store, so all
 // three views share one filter layer.
-export function CaseloadFilterBar({ facets, totalLoaded, matchCount }: CaseloadFilterBarProps): JSX.Element {
+export function CaseloadFilterBar({ facets }: CaseloadFilterBarProps): JSX.Element {
   const { styles } = useCaseloadFilterBarStyles();
   const filters = useCaseloadStore((state) => state.filters);
   const scope = useCaseloadStore((state) => state.scope);
@@ -144,7 +142,6 @@ export function CaseloadFilterBar({ facets, totalLoaded, matchCount }: CaseloadF
           Show archived
         </Checkbox>
         <span className={styles.spacer} />
-        <Typography.Text className={styles.count}>{`${matchCount} of ${totalLoaded}`}</Typography.Text>
         <Button onClick={resetFilters}>Reset filters</Button>
       </div>
     </div>
