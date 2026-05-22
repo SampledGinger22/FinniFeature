@@ -273,3 +273,8 @@
   `useMediaQuery` hook drives it. +2 hook tests, +1 AppShell test.
 - **Pipeline pills wrap** into two rows on narrow/half-screen widths (`flex-wrap` + a segment flex-basis)
   instead of squashing or overflowing.
+
+### Defaults
+- Changed `DEFAULT_USER_PREFERENCES` (the appearance defaults before a user customizes): font family
+  **Sans → Serif (Georgia)** and density **Compact → Comfortable**. Palette (Default) and text size
+  (Medium) unchanged. Applies to fresh state; existing persisted prefs are unaffected until reset.

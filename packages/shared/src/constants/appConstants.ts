@@ -17,11 +17,12 @@ export const DEFAULT_CACHE_MAX_ENTRIES = 500;
 // Default country for addresses when unspecified (§6.1).
 export const DEFAULT_COUNTRY = 'US';
 
-// Initial preferences before the user changes anything; compact density on by default (§4).
+// Initial preferences before the user changes anything (§4): warm-cream Default palette, the
+// Serif (Georgia) family, Medium text, and Comfortable density.
 export const DEFAULT_USER_PREFERENCES: UserPreferences = {
-  fontFamily: FontFamily.Sans,
+  fontFamily: FontFamily.Serif,
   fontScale: FontScale.Medium,
   themePalette: ThemePalette.Default,
-  density: Density.Compact,
+  density: Density.Comfortable,
   timezone: null,
 };
