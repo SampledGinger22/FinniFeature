@@ -49,8 +49,8 @@ Guiding principles, in priority order:
 | Database | Vercel Postgres (Neon) | Free tier, serverless-friendly, idiomatic Drizzle. |
 | Dates | dayjs (+ utc, +timezone plugins) | Small, immutable; centralized in `DateTimeUtil`. |
 | ~~Drag & drop~~ | ~~dnd-kit~~ | Removed with the board view (D57); the caseload ships Cards + Table only. |
-| Cache | in-memory LRU (`lru-cache`) | Behind a cache interface; swappable for Redis later. |
-| Logging | Winston (+ PHI redaction) | Structured logs; never logs PHI. |
+| Cache | _(planned)_ in-memory LRU (`lru-cache`) | Intended behind a cache interface (swappable for Redis). **Not yet built** — list queries read straight through the repository; only the page/cache constants exist. |
+| Logging | _(planned)_ Winston (+ PHI redaction) | Structured logs that never log PHI. **Not yet built** — current logging is `console` at the dev-server boundary; the redaction format is a planned seam (no `winston` dependency yet). |
 | Monorepo | Turborepo + Bun workspaces | Shared types package; fast installs. |
 | Unit/component tests | Vitest + React Testing Library | — |
 | E2E tests | Playwright | Vitest cannot do real E2E. |
@@ -286,10 +286,13 @@ A, D39):
 | `first_name`, `middle_name`, `last_name`, `contact_method.value`, `address.line1`, `line2`, `postal_code` | **Field-level encrypted** (AES-256-GCM, repo layer) | High-identifiability free-text PHI; never a filter/sort target, so encrypting is free on the hero path. |
 | `date_of_birth`, `address.region`, `address.city` | **Queryable** (at-rest encryption + scoped queries + never logged) | Power exact age range + sort and the location filter; must stay indexable. |
 
-Encryption/decryption happens only in the repository layer. Decryption is applied to the
-**already-filtered, paginated** result set (O(page), not O(table)), so the design holds at
-scale, not just at demo-seed size. Name search (if later needed) would require a blind/HMAC
-index — deferred.
+Encryption/decryption happens only in the repository layer, applied to the
+**already-filtered** result set. _Status: pagination is not yet implemented — the list query
+currently loads and decrypts the full active set (demo-seed size), so today decryption is
+O(loaded set). Once pagination lands it becomes O(page), not O(table); that scale property is
+the design intent, not a shipped guarantee._ The plaintext, indexed filter/sort columns
+(below) already hold at scale regardless. Name search (if later needed server-side) would
+require a blind/HMAC index — deferred.
 
 ---
 
@@ -398,19 +401,24 @@ correct baseline for a system meant to be iterated into something real:
   kept queryable** (encryption-at-rest + scoped queries + no-logging) because they power the
   exact age/location hero filter and cannot be both encrypted and indexed. This split is
   decision **D39** — see §6.6; it is a deliberate, bounded deviation from "encrypt DOB".
-- **No PHI in logs.** Winston runs a redaction format that scrubs known PHI fields before
-  any transport; code logs identifiers (patient UUID), never contents.
+- **No PHI in logs.** Code logs identifiers (patient UUID), never contents — enforced by
+  review today. _Planned: a Winston redaction format that scrubs known PHI fields before
+  transport. Not yet built — current logging is `console` at the dev-server boundary, with no
+  `winston` dependency. Until it lands, the no-PHI-in-logs rule rests on discipline, not a net._
 - **No PHI in client storage.** localStorage holds preferences only, never patient data.
 - **Soft delete + scoped queries** so records are never hard-lost and never leak by default.
-- **Audit-log scaffolding** (who/what/when shape) present as a seam for iteration.
+- **Audit-log scaffolding** (who/what/when shape) — _planned seam, not yet built. The schema
+  carries only `created_at`/`updated_at` timestamps; there is no actor/audit table yet._
 
 ### Observability
-- **Backend**: Winston structured logs to stdout (Vercel captures); each handler logs its
-  duration (cheap performance breadcrumb). No metrics stack (deferred, logged).
-- **Frontend**: error boundaries that *report* (not just catch) via a thin redacting
-  `reportError()` util, plus a dev-verbose/prod-quiet client logger, both behind a seam
-  ready to point at Sentry later. No PHI in client logs/reports. No RUM, analytics, or
-  session replay (the last is an active PHI liability; deferred and logged).
+- **Backend** _(planned)_: Winston structured logs to stdout (Vercel captures), each handler
+  logging its duration. **Not yet built** — current logging is `console`, with no per-handler
+  timing. No metrics stack (deferred).
+- **Frontend** _(partially built)_: error boundaries catch and render a fallback today; the
+  *reporting* path — a thin redacting `reportError()` util plus a dev-verbose/prod-quiet client
+  logger behind a Sentry-ready seam — is planned, not yet wired (`ErrorBoundary` has no
+  `componentDidCatch`/report call). No PHI in client logs/reports. No RUM, analytics, or
+  session replay (the last is an active PHI liability; deferred).
 
 ---
 

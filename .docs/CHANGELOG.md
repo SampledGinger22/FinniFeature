@@ -434,3 +434,19 @@
   first BOA deploy log showed Vercel zero-config *also* auto-compiling the `api/` directory (`Using
   TypeScript` ×5 after the generator), clobbering the prebuilt bundles with the broken `@/`-unresolved ones.
   Removing the `api/` dir stops the double-build so only `.vercel/output` ships.
+
+### Documentation reconciliation — observability/compliance claims (2026-05-22)
+- An end-to-end review found the docs claimed several HIPAA/observability capabilities that are not in the
+  code. Downgraded them from "is" to "planned seam, not yet built" so the docs match reality (no code
+  changed): **Winston + PHI-redaction logging** (actual logging is `console`; no `winston` dep), the
+  **frontend redacting `reportError()`** (`ErrorBoundary` catches + renders but has no `componentDidCatch`/
+  report call), **audit-log scaffolding** (schema has `created_at`/`updated_at` only — no actor/audit table),
+  **per-handler request timing**, and the **in-memory LRU cache** (the page/cache constants exist but no
+  cache layer reads them). Edited: spec §2 stack table, §11 (HIPAA + Observability), `CLAUDE.md` HIPAA rule,
+  and `DECISIONS.md` D28/D29 (added a shipped-vs-planned status note). *Why:* over-claiming compliance
+  controls is the riskiest doc drift for a PHI app — a reviewer who greps the code should find docs they can
+  trust. The encryption posture itself (AES-256-GCM field-level PHI, repo layer) is real and unchanged.
+- Corrected the §6.6 / D39 decryption-cost claim: list decryption is **O(loaded set)** today (no pagination
+  yet), not the documented **O(page)**. The O(page) property is the design intent once pagination lands; the
+  plaintext indexed filter/sort columns already hold at scale. *Why:* the headline scale argument leaned on a
+  property the code does not yet implement.

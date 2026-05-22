@@ -62,8 +62,9 @@ These are enforced by lint and hooks. Do not work around them; fix the code.
 
 ## HIPAA-aware (not certified)
 - Field-level encryption on PHI columns, handled in the repository layer.
-- **Never log PHI.** Log patient UUIDs, never names/dob/contact values. Winston redaction
-  is on; don't bypass it. Same discipline in frontend `reportError()`.
+- **Never log PHI.** Log patient UUIDs, never names/dob/contact values. (Winston redaction
+  and a redacting frontend `reportError()` are planned seams, not yet built — until then the
+  no-PHI-in-logs rule rests on review discipline, so hold it strictly. See spec §11.)
 - No PHI in localStorage (prefs only).
 
 ## Testing

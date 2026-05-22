@@ -99,6 +99,11 @@ graded (UI/UX and code quality for patient management).
 - **D29 — Winston with PHI redaction** + per-handler request timing. No metrics stack
   (deferred). Frontend: reporting error boundaries + redacting client logger behind a
   Sentry-ready seam. No RUM/analytics/session-replay (session replay is a PHI liability).
+- **Status (2026-05-22):** D28/D29 are *decided*, not all built. **Shipped:** field-level PHI
+  encryption, encryption at rest, no-PHI-in-logs discipline, no PHI in client storage, soft
+  delete + scoped queries. **Not yet built (planned seams):** Winston + PHI-redaction format,
+  per-handler timing, the audit-log table/actor, and the frontend redacting `reportError()`
+  (error boundaries currently catch + render but do not report). See spec §11.
 
 ### Tooling
 - **D30 — `.claude/` agents, skills, hooks committed to the repo** so enforcement travels
