@@ -10,6 +10,13 @@ export function patientFullName(patient: PatientWithRelations): string {
   return [patient.firstName, patient.middleName, patient.lastName].filter(Boolean).join(' ');
 }
 
+// Two-letter monogram (first + last initial) for the avatar fallback in dense rows.
+export function patientInitials(patient: PatientWithRelations): string {
+  const first = patient.firstName.trim().charAt(0);
+  const last = patient.lastName.trim().charAt(0);
+  return `${first}${last}`.toUpperCase();
+}
+
 function matchesStatus(patient: PatientWithRelations, filters: CaseloadFilters): boolean {
   return filters.statuses.length === 0 || filters.statuses.includes(patient.status);
 }

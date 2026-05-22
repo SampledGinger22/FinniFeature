@@ -1,13 +1,19 @@
 import { createStyles } from 'antd-style';
 
-// The deterministic background is computed from the patient seed (a token color), so it arrives
-// as a prop rather than a literal. The silhouette uses the avatar-silhouette CSS var.
-export const usePatientAvatarStyles = createStyles(({ css }, background: string) => ({
+export interface AvatarFallbackColors {
+  background: string;
+  foreground: string;
+}
+
+// Fallback colors arrive as a prop (token values, not literals): either the seed-hashed ring with
+// a light silhouette, or a status-tinted pair for the initials monogram in dense rows.
+export const usePatientAvatarStyles = createStyles(({ css }, colors: AvatarFallbackColors) => ({
   fallback: css`
-    background: ${background};
-    color: var(--finni-avatar-silhouette);
+    background: ${colors.background};
+    color: ${colors.foreground};
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    font-weight: 600;
   `,
 }));

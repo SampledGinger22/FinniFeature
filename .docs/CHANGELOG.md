@@ -216,3 +216,14 @@
   `UserPreferences` contract and untouched by `reset()` (it is layout, not a themeable preference).
 - New layout tokens (`finniLayout`: sidebar widths + content max-width) exposed as `--finni-sidebar-w`,
   `--finni-sidebar-w-collapsed`, `--finni-content-max-w`. +9 web tests (AppShell 6, PageHeader 3 → 93).
+
+### Visual redesign — caseload table rows
+- **Redesigned `CaseloadTableView`** to match the reference: a status-tinted circular initials avatar,
+  a bold name with an inline **Archived** flag, a sortable "Patient" header (default A→Z), the status
+  pill, City/ST location, an **Insurance** pill (Insured / "Not on file"), a derived **Attention** column
+  (warning dot + reason), and a trailing chevron with the row actions menu revealed on hover/focus.
+- `PatientAvatar` extended (backward-compatible) with optional `initials` + `status` tint + `shape`;
+  with no `initials` it still renders the deterministic silhouette, so cards/board/drawer are unchanged.
+- New `derivePatientAttention` pure helper + `patientInitials` helper. Attention is **derived** from real
+  signals (status, insurance) plus a stable id-hash — no scheduling/audit data exists yet (D56). +9 web
+  tests (attention 5, avatar 1, table 3 → 102).

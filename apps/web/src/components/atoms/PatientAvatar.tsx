@@ -1,4 +1,5 @@
 import { Avatar } from 'antd';
+import type { PatientStatus } from '@finni/shared';
 import { USE_HEADSHOTS } from '@/config/appConfig';
 import { finniAvatarColors } from '@/theme/finniTokens';
 import { usePatientAvatarStyles } from '@/components/atoms/PatientAvatar.styles';
@@ -27,20 +28,36 @@ interface PatientAvatarProps {
   src?: string;
   size?: number | 'small' | 'default' | 'large';
   alt?: string;
+  initials?: string;
+  status?: PatientStatus;
+  shape?: 'circle' | 'square';
 }
 
-// Headshot when USE_HEADSHOTS is on and a src exists (D26); otherwise the deterministic
+// Headshot when USE_HEADSHOTS is on and a src exists (D26); otherwise a fallback. The fallback is
+// an initials monogram tinted by status (dense rows) when initials are given, else the deterministic
 // colored silhouette. The flag forces the fallback app-wide when seeded photos render poorly.
-export function PatientAvatar({ seed, src, size = 'default', alt }: PatientAvatarProps): JSX.Element {
-  const { styles } = usePatientAvatarStyles(pickAvatarColor(seed));
+export function PatientAvatar({
+  seed,
+  src,
+  size = 'default',
+  alt,
+  initials,
+  status,
+  shape = 'square',
+}: PatientAvatarProps): JSX.Element {
+  const colors =
+    status !== undefined
+      ? { background: `var(--finni-status-${status}-bg)`, foreground: `var(--finni-status-${status}-fg)` }
+      : { background: pickAvatarColor(seed), foreground: 'var(--finni-avatar-silhouette)' };
+  const { styles } = usePatientAvatarStyles(colors);
   const label = alt ?? seed;
 
   if (USE_HEADSHOTS && src !== undefined) {
-    return <Avatar shape="square" size={size} src={src} alt={label} />;
+    return <Avatar shape={shape} size={size} src={src} alt={label} />;
   }
   return (
-    <Avatar shape="square" size={size} className={styles.fallback} alt={label}>
-      <PatientSilhouette />
+    <Avatar shape={shape} size={size} className={styles.fallback} alt={label}>
+      {initials ?? <PatientSilhouette />}
     </Avatar>
   );
 }

@@ -1,14 +1,16 @@
 import { useMemo } from 'react';
 import { Table, Tag, Typography } from 'antd';
+import { RightOutlined, SafetyCertificateOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { DateTimeUtil } from '@finni/shared';
 import type { PatientWithRelations } from '@finni/shared';
 import { PatientAvatar } from '@/components/atoms/PatientAvatar';
 import { StatusTag } from '@/components/atoms/StatusTag';
-import { PatientActionsMenu } from '@/components/molecules/PatientActionsMenu';
-import { patientFullName } from '@/filtering/caseloadFiltering';
-import type { PatientCollectionViewProps } from '@/components/organisms/patientCollectionView';
 import { patientStatusLabels } from '@/components/atoms/StatusTag';
+import { PatientActionsMenu } from '@/components/molecules/PatientActionsMenu';
+import { patientFullName, patientInitials } from '@/filtering/caseloadFiltering';
+import { derivePatientAttention } from '@/attention/patientAttention';
+import type { PatientCollectionViewProps } from '@/components/organisms/patientCollectionView';
 import { useCaseloadTableViewStyles } from '@/components/organisms/CaseloadTableView.styles';
 
 // Primary address used for locality display — isPrimary wins, else first; parallels PatientCard.
@@ -34,14 +36,30 @@ export function CaseloadTableView({ patients, onEditPatient }: PatientCollection
     {
       title: 'Patient',
       key: 'patient',
+      defaultSortOrder: 'ascend',
+      sorter: (a: PatientWithRelations, b: PatientWithRelations) =>
+        patientFullName(a).localeCompare(patientFullName(b)),
       render: (_: unknown, record: PatientWithRelations) => {
         const name = patientFullName(record);
         return (
           <div className={styles.nameCell}>
-            <PatientAvatar seed={record.id} size="small" alt={name} />
-            <Typography.Text className={styles.nameCellText} ellipsis>
-              {name}
-            </Typography.Text>
+            <PatientAvatar
+              seed={record.id}
+              shape="circle"
+              initials={patientInitials(record)}
+              status={record.status}
+              alt={name}
+            />
+            <span className={styles.nameText}>
+              <Typography.Text className={styles.nameCellText} ellipsis>
+                {name}
+              </Typography.Text>
+              {record.archived && (
+                <Tag className={styles.archivedFlag} color="default">
+                  Archived
+                </Tag>
+              )}
+            </span>
           </div>
         );
       },
@@ -73,16 +91,43 @@ export function CaseloadTableView({ patients, onEditPatient }: PatientCollection
     {
       title: 'Insurance',
       key: 'insurance',
-      width: 110,
+      width: 130,
       render: (_: unknown, record: PatientWithRelations) =>
-        record.hasInsurance ? <Tag>Insured</Tag> : '—',
+        record.hasInsurance ? (
+          <span className={styles.insurancePill}>
+            <SafetyCertificateOutlined />
+            Insured
+          </span>
+        ) : (
+          <span className={styles.muted}>Not on file</span>
+        ),
+    },
+    {
+      title: 'Attention',
+      key: 'attention',
+      render: (_: unknown, record: PatientWithRelations) => {
+        const reason = derivePatientAttention(record);
+        return reason === null ? (
+          <span className={styles.muted}>—</span>
+        ) : (
+          <span className={styles.attentionCell}>
+            <span className={styles.attentionDot} aria-hidden="true" />
+            {reason}
+          </span>
+        );
+      },
     },
     {
       title: '',
       key: 'actions',
-      width: 56,
+      width: 88,
       render: (_: unknown, record: PatientWithRelations) => (
-        <PatientActionsMenu patient={record} />
+        <div className={styles.rowTrailing}>
+          <span className={styles.rowActions} onClick={(event) => event.stopPropagation()}>
+            <PatientActionsMenu patient={record} />
+          </span>
+          <RightOutlined className={styles.chevron} aria-hidden="true" />
+        </div>
       ),
     },
   ], [styles]);

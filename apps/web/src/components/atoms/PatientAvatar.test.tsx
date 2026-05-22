@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { render } from '@testing-library/react';
+import { PatientStatus } from '@finni/shared';
 import { finniAvatarColors } from '@/theme/finniTokens';
 import { PatientAvatar, pickAvatarColor } from '@/components/atoms/PatientAvatar';
 
@@ -28,5 +29,13 @@ describe('PatientAvatar', () => {
     const img = container.querySelector('img');
     expect(img).not.toBeNull();
     expect(img?.getAttribute('src')).toBe(src);
+  });
+
+  it('renders an initials monogram instead of the silhouette when initials are given', () => {
+    const { container, getByText } = render(
+      <PatientAvatar seed="p1" initials="AH" status={PatientStatus.Inquiry} />,
+    );
+    expect(getByText('AH')).toBeInTheDocument();
+    expect(container.querySelector('svg')).toBeNull();
   });
 });

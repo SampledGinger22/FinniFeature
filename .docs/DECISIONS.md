@@ -284,3 +284,11 @@ graded (UI/UX and code quality for patient management).
   are omitted until they exist.** Sidebar collapse is persisted UI layout state on `usePreferencesStore`
   but kept out of the shared `UserPreferences` contract and untouched by `reset()` (layout ≠ preference).
   Sidebar/content sizing lives in a new `finniLayout` token group exposed as `--finni-*` CSS vars (D42).
+- **D56 — Patient "attention" is derived, not stored.** The redesigned caseload table and the daily
+  banner show a per-patient attention note, but no scheduling, contact-log, or authorization data exists
+  in the domain yet. `derivePatientAttention` is a pure function that derives a plausible reason from real
+  signals first (Inquiry → awaiting intake; Waitlisted → review placement; in-care without insurance →
+  insurance not on file) and falls back to a **deterministic** id-hash bucket for an "auth expires this
+  week" minority — never random, so a patient reads identically across renders and views. When real
+  attention sources land (reauth dates, missed sessions), this helper is the single seam to replace.
+  Avatar monograms (`patientInitials`) and the status-tinted `PatientAvatar` fallback are display-only.
