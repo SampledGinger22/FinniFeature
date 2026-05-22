@@ -318,3 +318,6 @@
 - **Edit drawer form** gains Primary email, Phone, Street, City, State (US-state Select), ZIP — seeded
   from the record and submitted with the patient fields; nested validation errors map back to their
   inputs. +5 shared, +4 api, +1 web tests.
+- Lifecycle redesign (feedback): the VIEW drawer's lifecycle is now a row of **status pills** (current
+  highlighted in its status color, the rest neutral) instead of a connected progress stepper — they are
+  statuses, not steps. Removes the connector line that showed through the circles.

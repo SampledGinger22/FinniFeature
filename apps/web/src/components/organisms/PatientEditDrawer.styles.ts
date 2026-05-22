@@ -63,68 +63,33 @@ export const usePatientEditDrawerStyles = createStyles(({ css, token }) => ({
     font-weight: 600;
     color: ${token.colorTextTertiary};
   `,
-  stepper: css`
+  statusRow: css`
     display: flex;
-    width: 100%;
+    flex-wrap: wrap;
+    gap: var(--finni-space-sm);
   `,
-  step: css`
-    flex: 1 1 0;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--finni-space-xs);
-    position: relative;
-  `,
-  connector: css`
-    position: absolute;
-    top: calc((var(--finni-space-lg) + var(--finni-space-sm)) / 2 - 1px);
-    right: 50%;
-    width: 100%;
-    height: 2px;
-    z-index: 0;
-  `,
-  connectorDone: css`
-    background: ${token.colorPrimary};
-  `,
-  connectorPending: css`
-    background: ${token.colorBorder};
-  `,
-  circle: css`
-    width: calc(var(--finni-space-lg) + var(--finni-space-sm));
-    height: calc(var(--finni-space-lg) + var(--finni-space-sm));
-    border-radius: var(--finni-radius-pill);
+  statusPill: css`
     display: inline-flex;
     align-items: center;
-    justify-content: center;
-    font-size: ${token.fontSizeSM}px;
-    position: relative;
-    z-index: 1;
-    flex-shrink: 0;
-  `,
-  circleDone: css`
-    background: ${token.colorPrimaryBg};
-    color: ${token.colorPrimary};
-  `,
-  circleCurrent: css`
-    background: ${token.colorPrimary};
-    color: ${token.colorBgContainer};
+    gap: var(--finni-space-sm);
+    padding: var(--finni-space-xs) var(--finni-space-md);
+    border: 1px solid transparent;
+    border-radius: var(--finni-radius-pill);
+    font-size: var(--finni-font-size);
     font-weight: 600;
   `,
-  circleFuture: css`
-    background: ${token.colorFillSecondary};
+  statusPillMuted: css`
+    border-color: ${token.colorBorder};
+    background: ${token.colorBgContainer};
     color: ${token.colorTextTertiary};
+    font-weight: 400;
   `,
-  stepLabel: css`
-    font-size: ${token.fontSizeSM}px;
-    text-align: center;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 100%;
-  `,
-  stepLabelMuted: css`
-    color: ${token.colorTextTertiary};
+  statusDot: css`
+    width: var(--finni-space-sm);
+    height: var(--finni-space-sm);
+    border-radius: var(--finni-radius-pill);
+    background: ${token.colorTextQuaternary};
+    flex-shrink: 0;
   `,
   card: css`
     display: flex;

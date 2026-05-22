@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { App, Button, DatePicker, Drawer, Form, Input, Select, Switch, Timeline, Typography } from 'antd';
 import {
-  CheckOutlined,
   EditOutlined,
   EnvironmentOutlined,
   MailOutlined,
@@ -304,28 +303,30 @@ export function PatientEditDrawer({ patient, open, onClose }: PatientEditDrawerP
 
         <div className={styles.section}>
           <span className={styles.sectionLabel}>Lifecycle</span>
-          <div className={styles.stepper}>
-            {STATUS_ORDER.map((status, index) => {
-              const current = STATUS_ORDER.indexOf(record.status);
-              const isDone = index < current;
-              const isCurrent = index === current;
+          <div className={styles.statusRow}>
+            {STATUS_ORDER.map((status) => {
+              const isCurrent = status === record.status;
               return (
-                <div key={status} className={styles.step}>
-                  {index > 0 && (
-                    <span className={cx(styles.connector, index <= current ? styles.connectorDone : styles.connectorPending)} />
-                  )}
+                <span
+                  key={status}
+                  className={cx(styles.statusPill, !isCurrent && styles.statusPillMuted)}
+                  aria-current={isCurrent ? 'true' : undefined}
+                  style={
+                    isCurrent
+                      ? {
+                          background: `var(--finni-status-${status}-bg)`,
+                          borderColor: `var(--finni-status-${status}-fg)`,
+                          color: `var(--finni-status-${status}-fg)`,
+                        }
+                      : undefined
+                  }
+                >
                   <span
-                    className={cx(
-                      styles.circle,
-                      isDone ? styles.circleDone : isCurrent ? styles.circleCurrent : styles.circleFuture,
-                    )}
-                  >
-                    {isDone ? <CheckOutlined /> : index + 1}
-                  </span>
-                  <span className={cx(styles.stepLabel, !isDone && !isCurrent && styles.stepLabelMuted)}>
-                    {patientStatusLabels[status]}
-                  </span>
-                </div>
+                    className={styles.statusDot}
+                    style={isCurrent ? { background: `var(--finni-status-${status}-fg)` } : undefined}
+                  />
+                  {patientStatusLabels[status]}
+                </span>
               );
             })}
           </div>
