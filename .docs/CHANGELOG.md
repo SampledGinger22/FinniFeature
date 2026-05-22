@@ -258,3 +258,8 @@
   enum, the Board switcher option, and the `boardStatuses`/`setBoardStatuses` column-chooser state from
   `useCaseloadStore`. The caseload now offers Cards + Table over the same one filter layer.
 - **Dropped the `@dnd-kit/core` dependency** (its only consumer was the board) — retires D54. (D57)
+
+### Copy
+- Renamed the **Waitlisted** status *label* to **Waitlist** across the app (centralized in
+  `patientStatusLabels`, so table/pipeline/filter/drawers all update). The stored enum value
+  (`'waitlisted'`) and the API/DB contract are unchanged — display-only.

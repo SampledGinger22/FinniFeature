@@ -5,7 +5,7 @@ import { StatusTag } from '@/components/atoms/StatusTag';
 
 const expectedLabels: Record<string, string> = {
   [PatientStatus.Inquiry]: 'Inquiry',
-  [PatientStatus.Waitlisted]: 'Waitlisted',
+  [PatientStatus.Waitlisted]: 'Waitlist',
   [PatientStatus.Onboarding]: 'Onboarding',
   [PatientStatus.Active]: 'Active',
   [PatientStatus.Paused]: 'Paused',

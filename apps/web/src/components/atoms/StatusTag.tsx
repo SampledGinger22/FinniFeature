@@ -6,7 +6,7 @@ import { useStatusTagStyles } from '@/components/atoms/StatusTag.styles';
 // package owns the enum values, not their presentation. Exported so the edit-drawer select reuses it.
 export const patientStatusLabels: Record<PatientStatus, string> = {
   [PatientStatus.Inquiry]: 'Inquiry',
-  [PatientStatus.Waitlisted]: 'Waitlisted',
+  [PatientStatus.Waitlisted]: 'Waitlist',
   [PatientStatus.Onboarding]: 'Onboarding',
   [PatientStatus.Active]: 'Active',
   [PatientStatus.Paused]: 'Paused',
