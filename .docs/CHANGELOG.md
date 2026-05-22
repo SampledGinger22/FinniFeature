@@ -415,3 +415,9 @@
   `.js` as ESM. Safe: prod functions are self-contained CJS bundles, Bun runs the `.ts` dev server/scripts
   as ESM regardless of the field, and the type-check uses `module: ESNext` (not `NodeNext`) so it doesn't
   key on the `type` field. Verified: api type-check + 31 tests pass, dev server boots and seeds.
+- Set `verbatimModuleSyntax: false` in `apps/api/tsconfig.json` (override of the base). *Why:* `@vercel/node`
+  type-checks each function with a forced-CommonJS compile, which clashes with the base
+  `verbatimModuleSyntax: true` and emitted `TS1295`/`TS1287` diagnostics on every function. They were
+  non-fatal (the deploy still completed) but noisy and could become fatal; relaxing it only for the api
+  package clears them. Local `tsc` is unaffected — it classifies modules via `module: ESNext`, not the
+  flag, so it still passed before and after.

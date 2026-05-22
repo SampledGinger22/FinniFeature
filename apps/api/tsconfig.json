@@ -6,7 +6,8 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    "types": ["node"]
+    "types": ["node"],
+    "verbatimModuleSyntax": false
   },
   "include": ["api", "src", "vitest.config.ts"]
 }
