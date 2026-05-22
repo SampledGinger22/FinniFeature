@@ -31,6 +31,9 @@ export const useAppShellStyles = createStyles(({ css, token }) => ({
     gap: var(--finni-space-sm);
     min-height: var(--finni-space-xl);
   `,
+  brandRowCollapsed: css`
+    justify-content: center;
+  `,
   collapseToggle: css`
     flex-shrink: 0;
     color: ${token.colorTextTertiary};
@@ -46,13 +49,16 @@ export const useAppShellStyles = createStyles(({ css, token }) => ({
     gap: var(--finni-space-sm);
     width: 100%;
     box-sizing: border-box;
+    min-height: calc(var(--finni-space-xl) + var(--finni-space-sm));
     padding: var(--finni-space-sm) var(--finni-space-md);
     border: none;
     border-left: var(--finni-space-xs) solid transparent;
     border-radius: var(--finni-radius-md);
     background: transparent;
     color: ${token.colorText};
+    font-family: inherit;
     font-size: var(--finni-font-size);
+    line-height: 1.4;
     text-align: left;
     cursor: pointer;
     transition: background 0.15s ease, color 0.15s ease;
@@ -73,10 +79,15 @@ export const useAppShellStyles = createStyles(({ css, token }) => ({
   `,
   navItemCollapsed: css`
     justify-content: center;
-    padding-left: var(--finni-space-sm);
-    padding-right: var(--finni-space-sm);
+    gap: 0;
+    padding: 0;
+    aspect-ratio: 1;
+    border-left-width: 0;
   `,
   navIcon: css`
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     font-size: var(--finni-font-size);
     line-height: 0;
   `,

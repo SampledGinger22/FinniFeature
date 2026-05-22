@@ -216,6 +216,9 @@
   `UserPreferences` contract and untouched by `reset()` (it is layout, not a themeable preference).
 - New layout tokens (`finniLayout`: sidebar widths + content max-width) exposed as `--finni-sidebar-w`,
   `--finni-sidebar-w-collapsed`, `--finni-content-max-w`. +9 web tests (AppShell 6, PageHeader 3 → 93).
+- Sidebar polish (user feedback): nav buttons now `font-family: inherit` so labels use the app font
+  tokens (native buttons were resetting the family); collapsed items are consistent squares (no awkward
+  scale-down) and the collapse toggle + provider chip center to align with the nav icon column.
 
 ### Visual redesign — caseload table rows
 - **Redesigned `CaseloadTableView`** to match the reference: a status-tinted circular initials avatar,

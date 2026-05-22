@@ -71,7 +71,7 @@ export function AppShell({ children }: AppShellProps): JSX.Element {
   return (
     <div className={styles.shell}>
       <aside className={cx(styles.sidebar, collapsed && styles.sidebarCollapsed)} aria-label="Primary">
-        <div className={styles.brandRow}>
+        <div className={cx(styles.brandRow, collapsed && styles.brandRowCollapsed)}>
           {!collapsed && <BrandLogo />}
           <Button
             type="text"

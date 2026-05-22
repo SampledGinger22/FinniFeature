@@ -7,6 +7,9 @@ export const useProviderIdentityChipStyles = createStyles(({ css, token }) => ({
     gap: var(--finni-space-sm);
     min-width: 0;
   `,
+  chipCollapsed: css`
+    justify-content: center;
+  `,
   avatar: css`
     background: ${token.colorPrimary};
     color: ${token.colorBgContainer};

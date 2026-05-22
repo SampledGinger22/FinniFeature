@@ -9,9 +9,9 @@ interface ProviderIdentityChipProps {
 // The signed-in clinician stand-in in the sidebar footer (no auth exists, D7). Collapsed shows
 // only the initialed avatar; expanded adds the name and credential line.
 export function ProviderIdentityChip({ collapsed = false }: ProviderIdentityChipProps): JSX.Element {
-  const { styles } = useProviderIdentityChipStyles();
+  const { styles, cx } = useProviderIdentityChipStyles();
   return (
-    <div className={styles.chip}>
+    <div className={cx(styles.chip, collapsed && styles.chipCollapsed)}>
       <Avatar shape="square" className={styles.avatar} alt={DEMO_PROVIDER.name}>
         {DEMO_PROVIDER.initials}
       </Avatar>
