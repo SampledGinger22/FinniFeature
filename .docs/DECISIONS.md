@@ -337,4 +337,8 @@ graded (UI/UX and code quality for patient management).
   `shouldAddHelpers: true` wires the `req`/`res` helpers. Vercel serves `.vercel/output` verbatim, so there
   is no alias resolution at runtime and `@/` stays in source. Node pinned to `22.x`; `verbatimModuleSyntax`
   is irrelevant here since esbuild (not tsc) compiles the functions. Verified locally: all five bundles load
-  with no missing modules and `health` returns 200.
+  with no missing modules and `health` returns 200. Function **sources live in `apps/api/functions/`, not
+  `apps/api/api/`**: the first BOA deploy showed Vercel zero-config *also* auto-compiling an `api/` directory
+  (the broken `@vercel/node` build clobbering the bundles). Removing the `api/` dir stops the double-build so
+  only the prebuilt output ships. Flat, bracket-free names (`patients-item.ts`, `patients-action.ts`,
+  `demo-action.ts`) since config.json maps URLs to them explicitly.

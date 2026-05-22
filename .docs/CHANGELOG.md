@@ -429,3 +429,8 @@
   (resolving `@/`, inlining `@finni/shared`) into a self-contained `*.func`, copies the SPA to `static/`,
   and writes a v3 `config.json` (clean URLs → bracket-free functions with path segments as query params;
   SPA fallback). Verified locally: all five bundles load with no missing modules; `health` returns 200.
+- Moved function sources `apps/api/api/**` → `apps/api/functions/**` (flat, bracket-free names) and updated
+  the generator entries, the ESLint default-export exception, and the api `tsconfig` include. *Why:* the
+  first BOA deploy log showed Vercel zero-config *also* auto-compiling the `api/` directory (`Using
+  TypeScript` ×5 after the generator), clobbering the prebuilt bundles with the broken `@/`-unresolved ones.
+  Removing the `api/` dir stops the double-build so only `.vercel/output` ships.

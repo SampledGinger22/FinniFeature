@@ -128,7 +128,7 @@ export default tseslint.config(
   },
   {
     // Tool-required default exports (Vercel functions, build/test config).
-    files: ['apps/api/api/**/*.ts', '**/*.config.{ts,js}', 'eslint.config.js'],
+    files: ['apps/api/functions/**/*.ts', '**/*.config.{ts,js}', 'eslint.config.js'],
     rules: {
       'no-restricted-syntax': ['error', noNewDateRule],
     },

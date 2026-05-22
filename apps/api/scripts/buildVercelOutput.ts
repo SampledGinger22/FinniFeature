@@ -14,13 +14,14 @@ const outputRoot = join(apiDir, '.vercel', 'output');
 const functionsRoot = join(outputRoot, 'functions');
 const staticRoot = join(outputRoot, 'static');
 
-// out is the deployed function path (no brackets — clean URLs map to these via config routes).
+// Sources live in functions/ (not api/) so Vercel's zero-config does not also auto-compile
+// them; out is the deployed function path that config.json routes map clean URLs onto.
 const FUNCTIONS = [
-  { entry: 'api/health.ts', out: 'api/health' },
-  { entry: 'api/patients/index.ts', out: 'api/patients' },
-  { entry: 'api/patients/[id]/index.ts', out: 'api/patients-item' },
-  { entry: 'api/patients/[id]/[action].ts', out: 'api/patients-action' },
-  { entry: 'api/demo/[action].ts', out: 'api/demo-action' },
+  { entry: 'functions/health.ts', out: 'api/health' },
+  { entry: 'functions/patients.ts', out: 'api/patients' },
+  { entry: 'functions/patients-item.ts', out: 'api/patients-item' },
+  { entry: 'functions/patients-action.ts', out: 'api/patients-action' },
+  { entry: 'functions/demo-action.ts', out: 'api/demo-action' },
 ];
 
 // shouldAddHelpers wires the @vercel/node req.query/req.body/res.json helpers the handlers use.
