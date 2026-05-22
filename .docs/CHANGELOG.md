@@ -288,3 +288,14 @@
   logs." note with Cancel / orange **Add patient**. The drawer mask now **blurs** the workspace behind it.
 - New reusable `StatusPillSelect` atom (color-dot single-select, Form-control shaped) + `US_STATES` list.
   +2 atom tests; create-drawer tests updated for the new labels/controls.
+
+### Visual redesign — View/Edit right drawer
+- **`PatientEditDrawer` is now read-first** with two modes. VIEW: identity header (square status-tinted
+  avatar, name, "Age · DOB · City, ST", status + insured pills, short ID), a **LIFECYCLE** stepper (antd
+  Steps, current highlighted), **CONTACT** and **ADDRESS** cards, and a **RECENT** timeline derived from
+  created/updated/status (no audit data exists, D56). EDIT: the patient form (now with the `StatusPillSelect`
+  status control) reached via **Edit record**; Cancel returns to view.
+- Footer adapts to lifecycle state: Archive/Reactivate + Delete (active) or Restore + Delete-permanently
+  (Trash), plus Edit record — reusing the existing lifecycle mutations with confirms; success closes the
+  drawer. The drawer mask **blurs** the workspace behind it (item 8). Edit-drawer tests updated for the
+  view-first flow.
