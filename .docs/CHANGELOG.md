@@ -251,3 +251,10 @@
   bar shows the caseload's shape while filters narrow the rows. Sits between the filter bar and the views.
 - The live count moved here from `CaseloadFilterBar` (matches the reference); the filter bar no longer
   takes `totalLoaded`/`matchCount`. +5 web tests (pipeline 4, helper 1).
+
+### Visual redesign — board view removed
+- **Removed the kanban board view** (user call: it didn't earn its complexity). Deleted `CaseloadBoardView`
+  + its styles/tests, the pure `caseloadBoard.ts` helper, the `Board` value from the `CaseloadViewMode`
+  enum, the Board switcher option, and the `boardStatuses`/`setBoardStatuses` column-chooser state from
+  `useCaseloadStore`. The caseload now offers Cards + Table over the same one filter layer.
+- **Dropped the `@dnd-kit/core` dependency** (its only consumer was the board) — retires D54. (D57)

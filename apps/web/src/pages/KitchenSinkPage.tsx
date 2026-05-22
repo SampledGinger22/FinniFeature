@@ -158,7 +158,6 @@ export function KitchenSinkPage(): JSX.Element {
               options={[
                 { value: 'card', label: 'Card' },
                 { value: 'table', label: 'Table' },
-                { value: 'board', label: 'Board' },
               ]}
               defaultValue="card"
               optionType="button"

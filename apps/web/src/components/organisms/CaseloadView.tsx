@@ -4,7 +4,6 @@ import { useCaseloadStore } from '@/state/useCaseloadStore';
 import { CaseloadViewMode } from '@/enums/caseloadViewMode';
 import { CaseloadCardView } from '@/components/organisms/CaseloadCardView';
 import { CaseloadTableView } from '@/components/organisms/CaseloadTableView';
-import { CaseloadBoardView } from '@/components/organisms/CaseloadBoardView';
 import { useCaseloadViewStyles } from '@/components/organisms/CaseloadView.styles';
 
 interface CaseloadViewProps {
@@ -18,7 +17,7 @@ interface CaseloadViewProps {
 const SKELETON_COUNT = 8;
 
 // One presentation layer with explicit loading / error / empty / data states (§8). It owns those
-// states once for all three views, then delegates the data state to the active view by mode — the
+// states once for both views, then delegates the data state to the active view by mode — the
 // views are presentation only, reading the SAME filtered set, so switching never refetches.
 export function CaseloadView({ patients, isLoading, isError, onRetry, onEditPatient }: CaseloadViewProps): JSX.Element {
   const { styles } = useCaseloadViewStyles();
@@ -58,9 +57,6 @@ export function CaseloadView({ patients, isLoading, isError, onRetry, onEditPati
 
   if (viewMode === CaseloadViewMode.Table) {
     return <CaseloadTableView patients={patients} onEditPatient={onEditPatient} />;
-  }
-  if (viewMode === CaseloadViewMode.Board) {
-    return <CaseloadBoardView patients={patients} onEditPatient={onEditPatient} />;
   }
   return <CaseloadCardView patients={patients} onEditPatient={onEditPatient} />;
 }

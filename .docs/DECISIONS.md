@@ -292,3 +292,8 @@ graded (UI/UX and code quality for patient management).
   week" minority — never random, so a patient reads identically across renders and views. When real
   attention sources land (reauth dates, missed sessions), this helper is the single seam to replace.
   Avatar monograms (`patientInitials`) and the status-tinted `PatientAvatar` fallback are display-only.
+- **D57 — Kanban board view removed; retires D54.** During the visual redesign the board view was judged
+  not to earn its complexity, so it was deleted entirely: `CaseloadBoardView`, the pure `caseloadBoard`
+  helper, the `Board` `CaseloadViewMode` value, the switcher option, and the `boardStatuses` column-chooser
+  state. The caseload now offers Cards + Table over the one shared filter layer. The `@dnd-kit/core`
+  dependency (added solely for board drag-and-drop in D54) was dropped, retiring D54.

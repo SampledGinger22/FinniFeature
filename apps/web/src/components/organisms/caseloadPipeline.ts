@@ -7,9 +7,9 @@ export interface PipelineSegment {
 }
 
 // Per-status counts over the loaded set, in lifecycle order. Pure and unit-tested so the pipeline
-// bar's widths/counts are derived identically to the rest of the caseload layer (parallels
-// caseloadBoard.ts). Counts reflect the loaded scope, not the active filter, so the bar shows the
-// shape of the caseload while filtering narrows the rows below it.
+// bar's widths/counts are derived identically to the rest of the caseload filter layer. Counts
+// reflect the loaded scope, not the active filter, so the bar shows the shape of the caseload
+// while filtering narrows the rows below it.
 export function derivePipelineSegments(patients: PatientWithRelations[]): PipelineSegment[] {
   const counts = {} as Record<PatientStatus, number>;
   for (const status of Object.values(PatientStatus)) {

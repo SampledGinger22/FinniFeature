@@ -5,7 +5,6 @@ import { CaseloadViewMode } from '@/enums/caseloadViewMode';
 const VIEW_OPTIONS = [
   { value: CaseloadViewMode.Card, label: 'Cards' },
   { value: CaseloadViewMode.Table, label: 'Table' },
-  { value: CaseloadViewMode.Board, label: 'Board' },
 ];
 
 // Switches the active caseload view. Writes only the view mode in the shared store, so the data

@@ -26,18 +26,12 @@ export const EMPTY_FILTERS: CaseloadFilters = {
   searchText: '',
 };
 
-// Default board layout shows every status column; the chooser lets a provider hide ones they
-// don't track (e.g. waitlisted, churned). Separate from filters so resetFilters never clears it.
-const ALL_STATUSES: PatientStatus[] = Object.values(PatientStatus);
-
 interface CaseloadState {
   viewMode: CaseloadViewMode;
   scope: RepositoryScope;
   filters: CaseloadFilters;
-  boardStatuses: PatientStatus[];
   setViewMode: (mode: CaseloadViewMode) => void;
   setScope: (scope: RepositoryScope) => void;
-  setBoardStatuses: (statuses: PatientStatus[]) => void;
   setStatuses: (statuses: PatientStatus[]) => void;
   toggleStatus: (status: PatientStatus) => void;
   setRegion: (region: string | null) => void;
@@ -52,10 +46,8 @@ export const useCaseloadStore = create<CaseloadState>()((set) => ({
   viewMode: CaseloadViewMode.Card,
   scope: RepositoryScope.Active,
   filters: EMPTY_FILTERS,
-  boardStatuses: ALL_STATUSES,
   setViewMode: (viewMode) => set({ viewMode }),
   setScope: (scope) => set({ scope }),
-  setBoardStatuses: (boardStatuses) => set({ boardStatuses }),
   setStatuses: (statuses) => set((state) => ({ filters: { ...state.filters, statuses } })),
   toggleStatus: (status) =>
     set((state) => {

@@ -20,9 +20,9 @@ const ACTION_RESTORE = 'restore';
 const ACTION_DELETE = 'delete';
 const ACTION_PURGE = 'purge';
 
-// Contextual lifecycle actions for one patient (§12), shared by every view so the card, table,
-// and board offer the same operations. Self-contains its mutations; stops click propagation so
-// using it inside a clickable card never opens the edit drawer.
+// Contextual lifecycle actions for one patient (§12), shared by every view so the card and table
+// offer the same operations. Self-contains its mutations; stops click propagation so using it
+// inside a clickable card never opens the edit drawer.
 export function PatientActionsMenu({ patient }: PatientActionsMenuProps): JSX.Element {
   const { message, modal } = App.useApp();
   const archive = useArchivePatientMutation();
