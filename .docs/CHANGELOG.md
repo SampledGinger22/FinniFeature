@@ -299,3 +299,6 @@
   (Trash), plus Edit record — reusing the existing lifecycle mutations with confirms; success closes the
   drawer. The drawer mask **blurs** the workspace behind it (item 8). Edit-drawer tests updated for the
   view-first flow.
+- Bottom Add drawer shape fix (feedback): it is now a **centered, inset, rounded** panel (not edge-to-edge)
+  capped at `finniLayout.bottomDrawerMaxWidth`, with a **warm cream body and white section cards** matching
+  the reference, instead of a full-width white sheet.

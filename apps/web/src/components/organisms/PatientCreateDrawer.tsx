@@ -9,6 +9,7 @@ import {
 } from '@finni/shared';
 import { StatusPillSelect } from '@/components/atoms/StatusPillSelect';
 import { US_STATES } from '@/config/usStates';
+import { finniLayout, finniRadius } from '@/theme/finniTokens';
 import { useCreatePatientMutation } from '@/queries/patientQueries';
 import { usePatientCreateDrawerStyles } from '@/components/organisms/PatientCreateDrawer.styles';
 
@@ -36,6 +37,12 @@ const DOB_DISPLAY_FORMAT = 'MMM D, YYYY';
 const DOB_HELPER = "A birthday isn't a timezone — stored as a plain date.";
 // backdrop-filter value lives here (not a token) so the drawer mask blurs the workspace behind it.
 const MASK_BLUR = { backdropFilter: 'blur(3px)' };
+// Center the bottom sheet as an inset, rounded panel (not edge-to-edge); values come from tokens.
+const DRAWER_SLOT_STYLES = {
+  mask: MASK_BLUR,
+  wrapper: { maxWidth: finniLayout.bottomDrawerMaxWidth, left: 0, right: 0, margin: '0 auto' },
+  content: { borderTopLeftRadius: finniRadius.lg, borderTopRightRadius: finniRadius.lg, overflow: 'hidden' },
+};
 
 // Strings start empty (not undefined) so trim()/min-length checks run against real values and the
 // inputs are controlled from first render; the select/switch carry their domain defaults.
@@ -142,7 +149,8 @@ export function PatientCreateDrawer({ open, onClose }: PatientCreateDrawerProps)
       open={open}
       onClose={onClose}
       destroyOnClose
-      styles={{ mask: MASK_BLUR }}
+      classNames={{ body: styles.drawerBody }}
+      styles={DRAWER_SLOT_STYLES}
       title={
         <div>
           <div className={styles.dragHandle} aria-hidden="true" />

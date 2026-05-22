@@ -26,6 +26,9 @@ export const usePatientCreateDrawerStyles = createStyles(({ css, token }) => ({
     color: ${token.colorTextSecondary};
     max-width: calc(var(--finni-space-xl) * 24);
   `,
+  drawerBody: css`
+    background: ${token.colorBgLayout};
+  `,
   body: css`
     display: flex;
     flex-direction: column;
@@ -35,6 +38,10 @@ export const usePatientCreateDrawerStyles = createStyles(({ css, token }) => ({
     display: flex;
     flex-direction: column;
     gap: var(--finni-space-sm);
+    padding: var(--finni-space-lg);
+    background: ${token.colorBgContainer};
+    border: 1px solid ${token.colorBorderSecondary};
+    border-radius: var(--finni-radius-lg);
   `,
   sectionLabel: css`
     text-transform: uppercase;
