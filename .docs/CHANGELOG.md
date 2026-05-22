@@ -302,3 +302,6 @@
 - Bottom Add drawer shape fix (feedback): it is now a **centered, inset, rounded** panel (not edge-to-edge)
   capped at `finniLayout.bottomDrawerMaxWidth`, with a **warm cream body and white section cards** matching
   the reference, instead of a full-width white sheet.
+- Lifecycle stepper fix (feedback): replaced antd `Steps` with a **custom compact stepper** so all six
+  statuses fit within the drawer width (no overflow/truncation, drawer not widened), connectors visually
+  touch the circles, and spacing is tighter. Completed = check, current = filled, future = muted.

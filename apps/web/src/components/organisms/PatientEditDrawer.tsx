@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { App, Button, DatePicker, Drawer, Form, Input, Steps, Switch, Timeline, Typography } from 'antd';
+import { App, Button, DatePicker, Drawer, Form, Input, Switch, Timeline, Typography } from 'antd';
 import {
+  CheckOutlined,
   EditOutlined,
   EnvironmentOutlined,
   MailOutlined,
@@ -64,7 +65,7 @@ function formatLocality(patient: PatientWithRelations): string {
 // View/Edit = right drawer (§8): the lateral motion signals "inspect a row". It opens read-first and
 // flips to the patient form on Edit record. The same shared Zod schema validates form and API (D15).
 export function PatientEditDrawer({ patient, open, onClose }: PatientEditDrawerProps): JSX.Element {
-  const { styles } = usePatientEditDrawerStyles();
+  const { styles, cx } = usePatientEditDrawerStyles();
   const { message, modal } = App.useApp();
   const [mode, setMode] = useState<DrawerMode>('view');
   const [form] = Form.useForm<PatientEditFormValues>();
@@ -262,12 +263,31 @@ export function PatientEditDrawer({ patient, open, onClose }: PatientEditDrawerP
 
         <div className={styles.section}>
           <span className={styles.sectionLabel}>Lifecycle</span>
-          <Steps
-            size="small"
-            responsive={false}
-            current={STATUS_ORDER.indexOf(record.status)}
-            items={STATUS_ORDER.map((status) => ({ title: patientStatusLabels[status] }))}
-          />
+          <div className={styles.stepper}>
+            {STATUS_ORDER.map((status, index) => {
+              const current = STATUS_ORDER.indexOf(record.status);
+              const isDone = index < current;
+              const isCurrent = index === current;
+              return (
+                <div key={status} className={styles.step}>
+                  {index > 0 && (
+                    <span className={cx(styles.connector, index <= current ? styles.connectorDone : styles.connectorPending)} />
+                  )}
+                  <span
+                    className={cx(
+                      styles.circle,
+                      isDone ? styles.circleDone : isCurrent ? styles.circleCurrent : styles.circleFuture,
+                    )}
+                  >
+                    {isDone ? <CheckOutlined /> : index + 1}
+                  </span>
+                  <span className={cx(styles.stepLabel, !isDone && !isCurrent && styles.stepLabelMuted)}>
+                    {patientStatusLabels[status]}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
         </div>
 
         <div className={styles.section}>

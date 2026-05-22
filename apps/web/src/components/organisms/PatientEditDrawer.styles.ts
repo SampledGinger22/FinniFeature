@@ -63,6 +63,69 @@ export const usePatientEditDrawerStyles = createStyles(({ css, token }) => ({
     font-weight: 600;
     color: ${token.colorTextTertiary};
   `,
+  stepper: css`
+    display: flex;
+    width: 100%;
+  `,
+  step: css`
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--finni-space-xs);
+    position: relative;
+  `,
+  connector: css`
+    position: absolute;
+    top: calc((var(--finni-space-lg) + var(--finni-space-sm)) / 2 - 1px);
+    right: 50%;
+    width: 100%;
+    height: 2px;
+    z-index: 0;
+  `,
+  connectorDone: css`
+    background: ${token.colorPrimary};
+  `,
+  connectorPending: css`
+    background: ${token.colorBorder};
+  `,
+  circle: css`
+    width: calc(var(--finni-space-lg) + var(--finni-space-sm));
+    height: calc(var(--finni-space-lg) + var(--finni-space-sm));
+    border-radius: var(--finni-radius-pill);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: ${token.fontSizeSM}px;
+    position: relative;
+    z-index: 1;
+    flex-shrink: 0;
+  `,
+  circleDone: css`
+    background: ${token.colorPrimaryBg};
+    color: ${token.colorPrimary};
+  `,
+  circleCurrent: css`
+    background: ${token.colorPrimary};
+    color: ${token.colorBgContainer};
+    font-weight: 600;
+  `,
+  circleFuture: css`
+    background: ${token.colorFillSecondary};
+    color: ${token.colorTextTertiary};
+  `,
+  stepLabel: css`
+    font-size: ${token.fontSizeSM}px;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  `,
+  stepLabelMuted: css`
+    color: ${token.colorTextTertiary};
+  `,
   card: css`
     display: flex;
     gap: var(--finni-space-md);
