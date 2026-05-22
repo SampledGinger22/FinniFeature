@@ -21,12 +21,12 @@ afterEach(() => {
 });
 
 describe('CaseloadFilterBar', () => {
-  it('writes the typed name into the store', async () => {
+  it('writes the typed search text into the store', async () => {
     renderWithProviders(<CaseloadFilterBar facets={facets} totalLoaded={5} matchCount={5} />);
 
-    await userEvent.type(screen.getByLabelText('Search by name'), 'avery');
+    await userEvent.type(screen.getByLabelText('Search'), 'avery');
 
-    expect(useCaseloadStore.getState().filters.nameSearch).toBe('avery');
+    expect(useCaseloadStore.getState().filters.searchText).toBe('avery');
   });
 
   it('writes a selected status into the store', async () => {
@@ -47,18 +47,19 @@ describe('CaseloadFilterBar', () => {
     expect(useCaseloadStore.getState().filters.region).toBe('TX');
   });
 
-  it('switches the scope to include trash', async () => {
+  it('switches the scope to include archived (trash lives on its own page, not here)', async () => {
     // antd Segmented disables pointer-events on its hidden radios; skip the jsdom check.
     const user = userEvent.setup({ pointerEventsCheck: PointerEventsCheckLevel.Never });
     renderWithProviders(<CaseloadFilterBar facets={facets} totalLoaded={5} matchCount={5} />);
 
-    await user.click(screen.getByRole('radio', { name: 'Trash' }));
+    expect(screen.queryByRole('radio', { name: 'Trash' })).not.toBeInTheDocument();
+    await user.click(screen.getByRole('radio', { name: 'Archived' }));
 
-    expect(useCaseloadStore.getState().scope).toBe(RepositoryScope.IncludeDeleted);
+    expect(useCaseloadStore.getState().scope).toBe(RepositoryScope.IncludeArchived);
   });
 
   it('renders the live count and clears every filter on reset', async () => {
-    useCaseloadStore.getState().setNameSearch('avery');
+    useCaseloadStore.getState().setSearchText('avery');
     useCaseloadStore.getState().setRegion('NY');
     renderWithProviders(<CaseloadFilterBar facets={facets} totalLoaded={5} matchCount={2} />);
 
@@ -67,7 +68,7 @@ describe('CaseloadFilterBar', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Reset filters' }));
 
     const filters = useCaseloadStore.getState().filters;
-    expect(filters.nameSearch).toBe('');
+    expect(filters.searchText).toBe('');
     expect(filters.region).toBeNull();
   });
 

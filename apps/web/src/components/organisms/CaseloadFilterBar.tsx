@@ -17,12 +17,11 @@ const statusFilterOptions = Object.values(PatientStatus).map((status) => ({
   label: patientStatusLabels[status],
 }));
 
-// Scope is the one server dimension; map its three values to friendly labels here so the store
-// keeps the contract value while the user sees plain words (Active/Archived/Trash).
+// Scope is the one server dimension. Only Active/Archived belong in the caseload; soft-deleted
+// patients live on the dedicated Trash page (Settings), so Trash is intentionally not offered here.
 const scopeOptions = [
   { value: RepositoryScope.Active, label: 'Active' },
   { value: RepositoryScope.IncludeArchived, label: 'Archived' },
-  { value: RepositoryScope.IncludeDeleted, label: 'Trash' },
 ];
 
 // The hero compound filter (§9): each control is general — it offers exactly the facets present in
@@ -31,7 +30,7 @@ export function CaseloadFilterBar({ facets, totalLoaded, matchCount }: CaseloadF
   const { styles } = useCaseloadFilterBarStyles();
   const filters = useCaseloadStore((state) => state.filters);
   const scope = useCaseloadStore((state) => state.scope);
-  const setNameSearch = useCaseloadStore((state) => state.setNameSearch);
+  const setSearchText = useCaseloadStore((state) => state.setSearchText);
   const setStatuses = useCaseloadStore((state) => state.setStatuses);
   const setRegion = useCaseloadStore((state) => state.setRegion);
   const setCity = useCaseloadStore((state) => state.setCity);
@@ -47,12 +46,13 @@ export function CaseloadFilterBar({ facets, totalLoaded, matchCount }: CaseloadF
   return (
     <div className={styles.bar} role="search" aria-label="Caseload filters">
       <Input
-        className={styles.control}
+        className={styles.search}
         allowClear
-        placeholder="Search by name"
-        aria-label="Search by name"
-        value={filters.nameSearch}
-        onChange={(event) => setNameSearch(event.target.value)}
+        placeholder="Search"
+        aria-label="Search"
+        title="Search names, locations, emails, and phone numbers"
+        value={filters.searchText}
+        onChange={(event) => setSearchText(event.target.value)}
       />
       <Select
         className={styles.control}

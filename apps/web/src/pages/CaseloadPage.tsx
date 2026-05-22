@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Button, Space, Typography } from 'antd';
-import { Link } from 'react-router-dom';
+import { SettingOutlined } from '@ant-design/icons';
+import { useNavigate } from 'react-router-dom';
 import type { PatientWithRelations } from '@finni/shared';
 import { BrandLogo } from '@/components/atoms/BrandLogo';
 import { CaseloadViewSwitcher } from '@/components/molecules/CaseloadViewSwitcher';
@@ -19,6 +20,7 @@ import { useCaseloadPageStyles } from '@/pages/CaseloadPage.styles';
 // region has its own error boundary so one failing widget never blanks the page (§8).
 export function CaseloadPage(): JSX.Element {
   const { styles } = useCaseloadPageStyles();
+  const navigate = useNavigate();
   const scope = useCaseloadStore((state) => state.scope);
   const query = usePatientListQuery(scope);
   const { patients, facets, totalLoaded, matchCount } = useFilteredPatients(query.data);
@@ -40,8 +42,8 @@ export function CaseloadPage(): JSX.Element {
           Caseload
         </Typography.Title>
         <nav className={styles.nav}>
-          <Link to="/your-day">Your day</Link>
-          <Link to="/settings">Settings</Link>
+          <Button onClick={() => navigate('/your-day')}>Your day</Button>
+          <Button icon={<SettingOutlined />} aria-label="Settings" onClick={() => navigate('/settings')} />
         </nav>
       </header>
 

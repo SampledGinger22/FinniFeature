@@ -77,6 +77,13 @@ export async function clearPatientDeleted(db: AppDatabase, id: string): Promise<
   await db.update(patient).set({ deletedAt: null, updatedAt: DateTimeUtil.nowUtc() }).where(eq(patient.id, id));
 }
 
+// Hard-delete one patient by id; cascades remove its addresses/contacts. Returns whether a row
+// existed. Backs the Trash "Delete permanently" action (§12) — irreversible, unlike soft delete.
+export async function deletePatientRow(db: AppDatabase, id: string): Promise<boolean> {
+  const deleted = await db.delete(patient).where(eq(patient.id, id)).returning({ id: patient.id });
+  return deleted.length > 0;
+}
+
 // Hard-delete records past the purge window; cascades remove their addresses/contacts (§12).
 export async function purgeExpiredPatients(db: AppDatabase, cutoffIso: string): Promise<number> {
   const deleted = await db

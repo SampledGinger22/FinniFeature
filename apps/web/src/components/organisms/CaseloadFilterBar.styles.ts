@@ -10,6 +10,9 @@ export const useCaseloadFilterBarStyles = createStyles(({ css, token }) => ({
   control: css`
     flex: 1 1 ${token.controlHeight * token.sizeStep}px;
   `,
+  search: css`
+    flex: 3 1 ${token.controlHeight * token.sizeStep}px;
+  `,
   ageControl: css`
     display: flex;
     flex-direction: column;

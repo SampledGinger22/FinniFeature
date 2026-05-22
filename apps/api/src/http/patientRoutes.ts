@@ -6,6 +6,7 @@ import {
   createPatient,
   getPatientDetail,
   getPatientList,
+  purgePatient,
   restorePatient,
   softDeletePatient,
   unarchivePatient,
@@ -80,6 +81,13 @@ export async function softDeletePatientRoute(db: AppDatabase, id: string): Promi
 export async function restorePatientRoute(db: AppDatabase, id: string): Promise<RouteResult> {
   await restorePatient(id, db);
   return readBackOr404(db, id, RepositoryScope.IncludeArchived);
+}
+
+// Permanent delete (irreversible) — no record to read back, so report the outcome and 404 a miss.
+export async function purgePatientRoute(db: AppDatabase, id: string): Promise<RouteResult> {
+  const purged = await purgePatient(id, db);
+  if (!purged) return { status: 404, body: { error: 'Patient not found' } };
+  return { status: 200, body: { purged: true } };
 }
 
 async function readBackOr404(db: AppDatabase, id: string, scope: RepositoryScope): Promise<RouteResult> {

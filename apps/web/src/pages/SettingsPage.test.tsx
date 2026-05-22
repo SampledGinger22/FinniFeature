@@ -21,10 +21,10 @@ function renderSettingsPage(): ReturnType<typeof renderWithProviders> {
 }
 
 describe('SettingsPage', () => {
-  it('renders page heading and back link', () => {
+  it('renders page heading and a back-to-caseload button', () => {
     renderSettingsPage();
     expect(screen.getByRole('heading', { name: /settings/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /back to caseload/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /back to caseload/i })).toBeInTheDocument();
   });
 
   it('renders all preference card headings', () => {
@@ -61,15 +61,17 @@ describe('SettingsPage', () => {
     expect(usePreferencesStore.getState().themePalette).toBe(ThemePalette.EyeStrain);
   });
 
-  it('clears timezone in the store when the field is blanked', async () => {
+  it('clears the timezone override to auto when Auto-detect is chosen', async () => {
     const user = userEvent.setup();
     // Pre-set a timezone so we have something to clear.
     usePreferencesStore.getState().setTimezone('America/New_York');
     renderSettingsPage();
 
-    const timezoneInput = screen.getByLabelText('Timezone');
-    await user.tripleClick(timezoneInput);
-    await user.keyboard('{Backspace}');
+    const timezone = screen.getByRole('combobox', { name: 'Timezone' });
+    await user.click(timezone);
+    // Filter the long zone list down so the virtual dropdown renders the option in jsdom.
+    await user.type(timezone, 'Auto');
+    await user.click(await screen.findByText('Auto-detect'));
 
     expect(usePreferencesStore.getState().timezone).toBeNull();
   });

@@ -8,6 +8,7 @@ import { insertAddressRow } from '@/repositories/addressRepository';
 import { insertContactMethodRow } from '@/repositories/contactMethodRepository';
 import {
   clearPatientDeleted,
+  deletePatientRow,
   getPatientById,
   insertPatientRow,
   listPatients,
@@ -94,6 +95,12 @@ export async function softDeletePatient(id: string, db: AppDatabase = getDb()): 
 
 export async function restorePatient(id: string, db: AppDatabase = getDb()): Promise<void> {
   await clearPatientDeleted(db, id);
+}
+
+// Permanently remove one patient now (the Trash "Delete permanently" action). Returns false when
+// the id does not exist so the handler can 404. Irreversible — the UI gates it behind a warning.
+export async function purgePatient(id: string, db: AppDatabase = getDb()): Promise<boolean> {
+  return deletePatientRow(db, id);
 }
 
 export async function getPatientList(

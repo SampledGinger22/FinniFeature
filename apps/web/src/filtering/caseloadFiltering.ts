@@ -32,9 +32,27 @@ function matchesAge(patient: PatientWithRelations, filters: CaseloadFilters): bo
   return true;
 }
 
-function matchesName(patient: PatientWithRelations, nameSearch: string): boolean {
-  const needle = nameSearch.trim().toLowerCase();
-  return needle === '' || patientFullName(patient).toLowerCase().includes(needle);
+// Free-text search across every human-meaningful field on the loaded (decrypted) record: name,
+// address parts, and contact values. Client-side over the loaded set, like the other facets.
+function patientSearchHaystack(patient: PatientWithRelations): string {
+  const addressParts = patient.addresses.flatMap((address) => [
+    address.line1,
+    address.line2,
+    address.city,
+    address.region,
+    address.postalCode,
+    address.country,
+  ]);
+  const contactParts = patient.contactMethods.map((method) => method.value);
+  return [patientFullName(patient), ...addressParts, ...contactParts]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase();
+}
+
+function matchesSearch(patient: PatientWithRelations, searchText: string): boolean {
+  const needle = searchText.trim().toLowerCase();
+  return needle === '' || patientSearchHaystack(patient).includes(needle);
 }
 
 export function applyCaseloadFilters(
@@ -47,7 +65,7 @@ export function applyCaseloadFilters(
       matchesRegion(patient, filters.region) &&
       matchesCity(patient, filters.city) &&
       matchesAge(patient, filters) &&
-      matchesName(patient, filters.nameSearch),
+      matchesSearch(patient, filters.searchText),
   );
 }
 

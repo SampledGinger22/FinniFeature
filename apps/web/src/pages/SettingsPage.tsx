@@ -1,5 +1,5 @@
-import { Button, Card, Input, Select, Segmented, Typography } from 'antd';
-import { Link } from 'react-router-dom';
+import { Button, Card, Select, Segmented, Typography } from 'antd';
+import { useNavigate } from 'react-router-dom';
 import { DateTimeUtil, Density, FontFamily, FontScale, ThemePalette } from '@finni/shared';
 import { BrandLogo } from '@/components/atoms/BrandLogo';
 import { DemoControls } from '@/components/organisms/DemoControls';
@@ -38,6 +38,16 @@ const fontFamilyOptions = Object.values(FontFamily).map((value) => ({ label: fon
 const fontScaleSegmentOptions = Object.values(FontScale).map((value) => ({ label: fontScaleLabels[value], value }));
 const densitySegmentOptions = Object.values(Density).map((value) => ({ label: densityLabels[value], value }));
 
+// IANA zones for the timezone picker, sourced from the runtime so the list stays current; the
+// sentinel clears the override back to auto-detect. Guarded for runtimes lacking the API.
+const TIMEZONE_AUTO = 'auto';
+type IntlWithZones = { supportedValuesOf?: (key: 'timeZone') => string[] };
+const runtimeTimeZones = (Intl as IntlWithZones).supportedValuesOf?.('timeZone') ?? [];
+const timezoneOptions = [
+  { value: TIMEZONE_AUTO, label: 'Auto-detect' },
+  ...runtimeTimeZones.map((zone) => ({ value: zone, label: zone })),
+];
+
 // Settings page: wires usePreferencesStore to controls so every change propagates live through
 // FinniThemeProvider without a page reload. DemoControls is kept in a clearly-separated card.
 export function SettingsPage(): JSX.Element {
@@ -55,11 +65,11 @@ export function SettingsPage(): JSX.Element {
   const setTimezone = usePreferencesStore((state) => state.setTimezone);
   const reset = usePreferencesStore((state) => state.reset);
 
+  const navigate = useNavigate();
   const effectiveTimezone = DateTimeUtil.resolveTimezone(timezone);
 
-  const handleTimezoneChange = (raw: string): void => {
-    const trimmed = raw.trim();
-    setTimezone(trimmed.length > 0 ? trimmed : null);
+  const handleTimezoneChange = (value: string): void => {
+    setTimezone(value === TIMEZONE_AUTO ? null : value);
   };
 
   return (
@@ -70,7 +80,7 @@ export function SettingsPage(): JSX.Element {
           Settings
         </Typography.Title>
         <nav className={styles.nav}>
-          <Link to="/">Back to caseload</Link>
+          <Button onClick={() => navigate('/')}>Back to caseload</Button>
         </nav>
       </header>
 
@@ -127,15 +137,26 @@ export function SettingsPage(): JSX.Element {
           <div className={styles.formRow}>
             <span className={styles.labelCol}>Timezone</span>
             <div className={styles.controlCol}>
-              <Input
-                value={timezone ?? ''}
-                placeholder="Auto-detect (leave blank)"
-                onChange={(event) => handleTimezoneChange(event.target.value)}
+              <Select
+                showSearch
+                value={timezone ?? TIMEZONE_AUTO}
+                options={timezoneOptions}
+                onChange={handleTimezoneChange}
                 aria-label="Timezone"
               />
               <span className={styles.helperText}>
                 Effective timezone: {effectiveTimezone}
               </span>
+            </div>
+          </div>
+        </Card>
+
+        <Card title="Trash">
+          <div className={styles.formRow}>
+            <span className={styles.labelCol}>Deleted patients</span>
+            <div className={styles.controlCol}>
+              <Button onClick={() => navigate('/trash')}>Open Trash</Button>
+              <span className={styles.helperText}>Restore or permanently delete soft-deleted patients.</span>
             </div>
           </div>
         </Card>

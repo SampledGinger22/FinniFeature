@@ -10,6 +10,7 @@ import {
   createPatientRoute,
   getPatientRoute,
   listPatientsRoute,
+  purgePatientRoute,
   restorePatientRoute,
   softDeletePatientRoute,
   unarchivePatientRoute,
@@ -20,7 +21,7 @@ import { blankSlateRoute, purgeExpiredRoute, reseedRoute } from '@/http/demoRout
 
 const DEFAULT_PORT = 3001;
 const PATIENT_ID_PATTERN = /^\/api\/patients\/([^/]+)\/?$/;
-const PATIENT_ACTION_PATTERN = /^\/api\/patients\/([^/]+)\/(archive|unarchive|restore)\/?$/;
+const PATIENT_ACTION_PATTERN = /^\/api\/patients\/([^/]+)\/(archive|unarchive|restore|purge)\/?$/;
 const DEMO_ACTION_PATTERN = /^\/api\/demo\/(purge|reseed|blank-slate)\/?$/;
 
 // Local dev transport for the same route-core the Vercel functions use. Not the deploy path —
@@ -56,6 +57,7 @@ function sendJson(res: ServerResponse, status: number, body: unknown): void {
 async function runPatientAction(db: AppDatabase, id: string, action: string): Promise<RouteResult> {
   if (action === 'archive') return archivePatientRoute(db, id);
   if (action === 'unarchive') return unarchivePatientRoute(db, id);
+  if (action === 'purge') return purgePatientRoute(db, id);
   return restorePatientRoute(db, id);
 }
 

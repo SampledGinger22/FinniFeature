@@ -8,6 +8,7 @@ import {
   archivePatientRoute,
   createPatientRoute,
   listPatientsRoute,
+  purgePatientRoute,
   restorePatientRoute,
   softDeletePatientRoute,
   unarchivePatientRoute,
@@ -93,6 +94,23 @@ describe('soft delete / restore', () => {
 
   it('returns 404 when archiving an unknown id', async () => {
     const result = await archivePatientRoute(db, '00000000-0000-0000-0000-000000000000');
+    expect(result.status).toBe(404);
+  });
+});
+
+describe('purge (permanent delete)', () => {
+  it('permanently removes a patient so it is gone from every scope', async () => {
+    const target = patientsOf(await listPatientsRoute(db))[0]!;
+    await softDeletePatientRoute(db, target.id);
+
+    const purged = await purgePatientRoute(db, target.id);
+    expect(purged.status).toBe(200);
+    expect((purged.body as { purged: boolean }).purged).toBe(true);
+    expect(patientsOf(await listPatientsRoute(db, 'include-deleted')).map((p) => p.id)).not.toContain(target.id);
+  });
+
+  it('returns 404 when purging an unknown id', async () => {
+    const result = await purgePatientRoute(db, '00000000-0000-0000-0000-000000000000');
     expect(result.status).toBe(404);
   });
 });

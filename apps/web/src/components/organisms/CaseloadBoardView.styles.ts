@@ -1,6 +1,15 @@
 import { createStyles } from 'antd-style';
 
 export const useCaseloadBoardViewStyles = createStyles(({ css, token }) => ({
+  toolbar: css`
+    display: flex;
+    align-items: center;
+    gap: var(--finni-space-sm);
+    margin-bottom: var(--finni-space-md);
+  `,
+  chooser: css`
+    min-width: 280px;
+  `,
   board: css`
     display: flex;
     gap: var(--finni-space-md);
@@ -15,6 +24,7 @@ export const useCaseloadBoardViewStyles = createStyles(({ css, token }) => ({
     flex: 1 0 auto;
     width: 280px;
     min-width: 280px;
+    height: 70vh;
     padding: var(--finni-space-sm);
     border-radius: var(--finni-radius-md);
     background: ${token.colorFillQuaternary};
@@ -35,7 +45,9 @@ export const useCaseloadBoardViewStyles = createStyles(({ css, token }) => ({
     display: flex;
     flex-direction: column;
     gap: var(--finni-space-sm);
-    min-height: var(--finni-space-xl);
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
   `,
   columnEmpty: css`
     color: ${token.colorTextTertiary};

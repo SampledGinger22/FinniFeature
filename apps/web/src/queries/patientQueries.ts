@@ -7,6 +7,7 @@ import {
   createPatientRequest,
   fetchPatientsByScope,
   purgeExpiredDemoRequest,
+  purgePatientRequest,
   reseedDemoRequest,
   restorePatientRequest,
   softDeletePatientRequest,
@@ -70,6 +71,11 @@ export function useSoftDeletePatientMutation(): UseMutationResult<PatientWithRel
 export function useRestorePatientMutation(): UseMutationResult<PatientWithRelations, Error, string> {
   const invalidate = useInvalidateOnSuccess();
   return useMutation({ mutationFn: restorePatientRequest, onSuccess: invalidate });
+}
+
+export function usePurgePatientMutation(): UseMutationResult<{ purged: boolean }, Error, string> {
+  const invalidate = useInvalidateOnSuccess();
+  return useMutation({ mutationFn: purgePatientRequest, onSuccess: invalidate });
 }
 
 export function useReseedDemoMutation(): UseMutationResult<DemoSeedSummary, Error, void> {

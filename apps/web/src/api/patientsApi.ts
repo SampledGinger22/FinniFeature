@@ -70,6 +70,11 @@ export async function softDeletePatientRequest(id: string): Promise<PatientWithR
   return data.patient;
 }
 
+// Permanent delete — returns no patient (the record is gone), only the purge outcome.
+export async function purgePatientRequest(id: string): Promise<{ purged: boolean }> {
+  return parseJson<{ purged: boolean }>(await fetch(`${PATIENTS_ENDPOINT}/${id}/purge`, { method: 'POST' }));
+}
+
 export interface DemoSeedSummary {
   total: number;
   archived: number;

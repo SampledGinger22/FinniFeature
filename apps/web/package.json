@@ -12,6 +12,7 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@ant-design/icons": "^6.2.3",
     "@dnd-kit/core": "^6.3.1",
     "@finni/shared": "workspace:*",
     "@tanstack/react-query": "^5.62.7",

@@ -56,9 +56,11 @@ describe('applyCaseloadFilters', () => {
     expect(ids(applyCaseloadFilters(sample, filters({ ageMin: 40 })))).toEqual(['older']);
   });
 
-  it('searches names case-insensitively across first/middle/last', () => {
-    expect(ids(applyCaseloadFilters(sample, filters({ nameSearch: 'elena' })))).toEqual(['young']);
-    expect(ids(applyCaseloadFilters(sample, filters({ nameSearch: 'park' })))).toEqual(['older']);
+  it('searches case-insensitively across name AND location (not name-only)', () => {
+    expect(ids(applyCaseloadFilters(sample, filters({ searchText: 'elena' })))).toEqual(['young']); // middle name
+    expect(ids(applyCaseloadFilters(sample, filters({ searchText: 'park' })))).toEqual(['older']); // last name
+    expect(ids(applyCaseloadFilters(sample, filters({ searchText: 'austin' })))).toEqual(['older']); // city
+    expect(ids(applyCaseloadFilters(sample, filters({ searchText: 'buffalo' })))).toEqual(['young']); // city
   });
 
   it('composes arbitrary facets (the litmus example is just one combination, not special-cased)', () => {

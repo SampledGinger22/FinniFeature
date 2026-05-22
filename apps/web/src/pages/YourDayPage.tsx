@@ -1,6 +1,6 @@
 import { Alert, Button, Empty, Skeleton } from 'antd';
 import { Typography } from 'antd';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { RepositoryScope } from '@finni/shared';
 import { BrandLogo } from '@/components/atoms/BrandLogo';
 import { ErrorBoundary } from '@/components/molecules/ErrorBoundary';
@@ -14,6 +14,7 @@ const SKELETON_ROWS = 4;
 // states from CaseloadView; wraps the data region in an ErrorBoundary for per-widget resilience.
 export function YourDayPage(): JSX.Element {
   const { styles } = useYourDayPageStyles();
+  const navigate = useNavigate();
   const query = usePatientListQuery(RepositoryScope.Active);
 
   const renderContent = (): JSX.Element => {
@@ -60,7 +61,7 @@ export function YourDayPage(): JSX.Element {
           Your day
         </Typography.Title>
         <nav className={styles.nav}>
-          <Link to="/">Back to caseload</Link>
+          <Button onClick={() => navigate('/')}>Back to caseload</Button>
         </nav>
       </header>
 

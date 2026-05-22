@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { App, Card, Tag, Typography } from 'antd';
+import { App, Card, Select, Tag, Typography } from 'antd';
 import {
   DndContext,
   KeyboardSensor,
@@ -17,6 +17,7 @@ import { StatusTag, patientStatusLabels } from '@/components/atoms/StatusTag';
 import { PatientActionsMenu } from '@/components/molecules/PatientActionsMenu';
 import { patientFullName } from '@/filtering/caseloadFiltering';
 import { useUpdatePatientMutation } from '@/queries/patientQueries';
+import { useCaseloadStore } from '@/state/useCaseloadStore';
 import type { PatientCollectionViewProps } from '@/components/organisms/patientCollectionView';
 import {
   caseloadBoardColumns,
@@ -28,6 +29,12 @@ import { useCaseloadBoardViewStyles } from '@/components/organisms/CaseloadBoard
 // Pointer drags only begin after a small move, so a plain click still opens the edit drawer
 // instead of being swallowed as a drag (D: board card = click-to-edit, hold-to-move).
 const DRAG_ACTIVATION_DISTANCE = 5;
+
+// Column-chooser options in canonical lifecycle order (matches the board column order).
+const boardColumnOptions = caseloadBoardColumns.map((status) => ({
+  value: status,
+  label: patientStatusLabels[status],
+}));
 
 interface BoardCardProps {
   patient: PatientWithRelations;
@@ -120,11 +127,19 @@ export function CaseloadBoardView({ patients, onEditPatient }: PatientCollection
   const { styles } = useCaseloadBoardViewStyles();
   const { message } = App.useApp();
   const mutation = useUpdatePatientMutation();
+  const boardStatuses = useCaseloadStore((state) => state.boardStatuses);
+  const setBoardStatuses = useCaseloadStore((state) => state.setBoardStatuses);
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: DRAG_ACTIVATION_DISTANCE } }),
     useSensor(KeyboardSensor),
   );
   const groups = useMemo(() => groupPatientsByStatus(patients), [patients]);
+  // Show only the chosen status columns, in canonical order, so a provider can hide ones they
+  // don't track. Drag-and-drop still targets any rendered column.
+  const visibleColumns = useMemo(
+    () => caseloadBoardColumns.filter((status) => boardStatuses.includes(status)),
+    [boardStatuses],
+  );
 
   const handleDragEnd = (event: DragEndEvent): void => {
     const overStatus = event.over ? String(event.over.id) : null;
@@ -140,17 +155,32 @@ export function CaseloadBoardView({ patients, onEditPatient }: PatientCollection
   };
 
   return (
-    <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
-      <div className={styles.board}>
-        {caseloadBoardColumns.map((status) => (
-          <BoardColumn
-            key={status}
-            status={status}
-            patients={groups[status]}
-            onEditPatient={onEditPatient}
-          />
-        ))}
+    <div>
+      <div className={styles.toolbar}>
+        <Typography.Text className={styles.cardMeta}>Columns</Typography.Text>
+        <Select
+          className={styles.chooser}
+          mode="multiple"
+          allowClear
+          placeholder="Columns to show"
+          aria-label="Board columns"
+          options={boardColumnOptions}
+          value={boardStatuses}
+          onChange={(value: PatientStatus[]) => setBoardStatuses(value)}
+        />
       </div>
-    </DndContext>
+      <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
+        <div className={styles.board}>
+          {visibleColumns.map((status) => (
+            <BoardColumn
+              key={status}
+              status={status}
+              patients={groups[status]}
+              onEditPatient={onEditPatient}
+            />
+          ))}
+        </div>
+      </DndContext>
+    </div>
   );
 }

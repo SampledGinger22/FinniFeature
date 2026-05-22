@@ -4,6 +4,7 @@ import { FinniThemeProvider } from '@/theme/FinniThemeProvider';
 import { queryClient } from '@/queries/queryClient';
 import { CaseloadPage } from '@/pages/CaseloadPage';
 import { SettingsPage } from '@/pages/SettingsPage';
+import { TrashPage } from '@/pages/TrashPage';
 import { YourDayPage } from '@/pages/YourDayPage';
 import { KitchenSinkPage } from '@/pages/KitchenSinkPage';
 
@@ -18,6 +19,7 @@ export function FinniRoot(): JSX.Element {
             <Route path="/" element={<CaseloadPage />} />
             <Route path="/your-day" element={<YourDayPage />} />
             <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/trash" element={<TrashPage />} />
             <Route path="/kitchen-sink" element={<KitchenSinkPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

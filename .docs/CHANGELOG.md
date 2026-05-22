@@ -179,3 +179,23 @@
   (filter store stays unpersisted; no PHI in logs/storage). Applied the performance findings — memoized the
   table columns, board grouping, filter-bar options, and your-day summary, and hoisted the static settings
   option arrays. +49 web tests (now 84). Lint/type-check/test green; web production build verified.
+
+### Post-Step-5 UX tweaks (batch 1)
+- Per-patient permanent delete: `deletePatientRow` repo + `purgePatient` service + `purgePatientRoute`
+  (`POST /api/patients/:id/purge`), wired into the dev server + Vercel action handler. API client
+  `purgePatientRequest` + `usePurgePatientMutation`. +2 api tests (now 27). Extends D53.
+- Hero search broadened from name-only to **all human fields** (name + address parts + email/phone),
+  still client-side over the loaded set; renamed `filters.nameSearch` → `searchText`; placeholder is now
+  "Search" and the field is wider. Updates the intent of D52 / the name-search note.
+- `PatientActionsMenu`: "Unarchive" → "Reactivate"; deleted patients now get Restore + "Delete
+  permanently" (irreversible, warning-gated via the purge mutation).
+- Dedicated **Trash page** (`/trash`, table-only, soft-deleted only) reached from Settings; removed Trash
+  from the caseload filter scope (Active/Archived only there).
+- Nav: Your Day + Settings (gear icon) became buttons; "Back to caseload" became a button on the sub-pages.
+  Added `@ant-design/icons` (already a transitive antd dep). Settings timezone is now a searchable Select
+  of IANA zones (auto-detect sentinel) instead of free text.
+- Board: columns now hold a fixed height with internal scroll (no collapse when sparse) and a multi-select
+  **column chooser** (`boardStatuses` in the caseload store) to hide status columns a provider doesn't track.
+- NOTE: a larger visual redesign is queued next (left sidebar nav, rename Caseload→Patients, redesigned
+  table rows + patient drawer with lifecycle stepper + background blur, caseload pipeline bar, provider-
+  workspace eyebrow). Tracked in memory with reference-screenshot paths.

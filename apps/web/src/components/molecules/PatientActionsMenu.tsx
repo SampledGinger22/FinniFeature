@@ -3,6 +3,7 @@ import type { MenuProps } from 'antd';
 import type { PatientWithRelations } from '@finni/shared';
 import {
   useArchivePatientMutation,
+  usePurgePatientMutation,
   useRestorePatientMutation,
   useSoftDeletePatientMutation,
   useUnarchivePatientMutation,
@@ -17,6 +18,7 @@ const ACTION_ARCHIVE = 'archive';
 const ACTION_UNARCHIVE = 'unarchive';
 const ACTION_RESTORE = 'restore';
 const ACTION_DELETE = 'delete';
+const ACTION_PURGE = 'purge';
 
 // Contextual lifecycle actions for one patient (§12), shared by every view so the card, table,
 // and board offer the same operations. Self-contains its mutations; stops click propagation so
@@ -27,13 +29,20 @@ export function PatientActionsMenu({ patient }: PatientActionsMenuProps): JSX.El
   const unarchive = useUnarchivePatientMutation();
   const softDelete = useSoftDeletePatientMutation();
   const restore = useRestorePatientMutation();
+  const purge = usePurgePatientMutation();
 
+  // Deleted (in Trash): restore back to the caseload, or delete permanently. Otherwise: archive
+  // toggle (label reads "Reactivate" when archived) plus the reversible soft delete.
   const isDeleted = patient.deletedAt !== null;
   const items: MenuProps['items'] = isDeleted
-    ? [{ key: ACTION_RESTORE, label: 'Restore' }]
+    ? [
+        { key: ACTION_RESTORE, label: 'Restore' },
+        { type: 'divider' },
+        { key: ACTION_PURGE, label: 'Delete permanently', danger: true },
+      ]
     : [
         patient.archived
-          ? { key: ACTION_UNARCHIVE, label: 'Unarchive' }
+          ? { key: ACTION_UNARCHIVE, label: 'Reactivate' }
           : { key: ACTION_ARCHIVE, label: 'Archive' },
         { type: 'divider' },
         { key: ACTION_DELETE, label: 'Delete', danger: true },
@@ -53,6 +62,21 @@ export function PatientActionsMenu({ patient }: PatientActionsMenuProps): JSX.El
     });
   };
 
+  // Irreversible hard delete (Trash only) — gated behind a firm warning since there is no undo.
+  const runPurge = (): void => {
+    modal.confirm({
+      title: `Permanently delete ${patientFullName(patient)}?`,
+      content: 'This erases the record and all of its data for good. This cannot be undone.',
+      okText: 'Delete permanently',
+      okButtonProps: { danger: true },
+      onOk: () =>
+        purge.mutateAsync(patient.id).then(
+          () => message.success('Patient permanently deleted'),
+          () => message.error('Could not delete patient'),
+        ),
+    });
+  };
+
   const onClick: MenuProps['onClick'] = ({ key, domEvent }) => {
     domEvent.stopPropagation();
     if (key === ACTION_ARCHIVE) {
@@ -66,6 +90,8 @@ export function PatientActionsMenu({ patient }: PatientActionsMenuProps): JSX.El
       });
     } else if (key === ACTION_DELETE) {
       runDelete();
+    } else if (key === ACTION_PURGE) {
+      runPurge();
     }
   };
 
