@@ -334,3 +334,19 @@
   with an inbox icon on both card and table.
 - **Pipeline pills are equal-width** (fill the row, wrap on narrow) — no longer sized by count/percentage.
 - +3 web tests (`PatientActionsMenu`).
+
+### Shared sort, curated timezones, Your-day hidden (feedback)
+- **Shared caseload sort.** New web-only `CaseloadSortField` (Name/Age/Status) + `CaseloadSortDirection`
+  const-object unions, `sortField`/`sortDirection` on `useCaseloadStore` (default Name ascending). A pure
+  `sortCaseloadPatients` (+ shared `compareCaseloadPatients` comparator) runs in `useFilteredPatients`
+  after filtering, so **card and table render the same order**. Status sorts by lifecycle rank, not
+  alphabetically. New `CaseloadSortControl` (field Select + direction toggle) in the caseload header. The
+  table's column sorters are now **controlled by the same store** (header click ↔ toolbar control stay in
+  lockstep) and delegate to `compareCaseloadPatients` so the two can't drift. *Why:* the card view had no
+  sort and the table's own sorter fought any shared order; one ordering, defined once. +6 web tests.
+- **Timezone picker limited to US + Canada.** `SettingsPage` no longer enumerates every IANA zone at
+  runtime; it reads a curated `config/timezones.ts` list (offset-named labels, searchable by label) plus
+  the Auto-detect sentinel. *Why:* the full world-zone list was noise for a US/Canada provider tool.
+- **"Your day" hidden for now.** Removed its sidebar nav item and route (`/your-day` falls through to the
+  catch-all redirect to `/`); the page + tests stay in the repo for easy re-enable. *Why:* the feature is
+  incomplete and not demo-ready.

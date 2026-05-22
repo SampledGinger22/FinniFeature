@@ -6,7 +6,6 @@ import { AppShell } from '@/components/templates/AppShell';
 import { CaseloadPage } from '@/pages/CaseloadPage';
 import { SettingsPage } from '@/pages/SettingsPage';
 import { TrashPage } from '@/pages/TrashPage';
-import { YourDayPage } from '@/pages/YourDayPage';
 import { KitchenSinkPage } from '@/pages/KitchenSinkPage';
 
 // Wraps every real workspace page in the shared sidebar shell via an Outlet; pages supply only
@@ -29,7 +28,6 @@ export function FinniRoot(): JSX.Element {
           <Routes>
             <Route element={<ShellLayout />}>
               <Route path="/" element={<CaseloadPage />} />
-              <Route path="/your-day" element={<YourDayPage />} />
               <Route path="/settings" element={<SettingsPage />} />
               <Route path="/trash" element={<TrashPage />} />
             </Route>

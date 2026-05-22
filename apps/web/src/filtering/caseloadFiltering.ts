@@ -1,6 +1,7 @@
-import { DateTimeUtil } from '@finni/shared';
+import { DateTimeUtil, PatientStatus } from '@finni/shared';
 import type { PatientWithRelations } from '@finni/shared';
 import type { CaseloadFilters } from '@/state/useCaseloadStore';
+import { CaseloadSortDirection, CaseloadSortField } from '@/enums/caseloadSort';
 
 // The hero filter, implemented as one pure function over the already-loaded scoped set (spec §8,
 // §9). Pure so it is unit-testable and so card/table/board share identical results. Each facet is
@@ -79,6 +80,40 @@ export function applyCaseloadFilters(
       matchesInsurance(patient, filters.insured) &&
       matchesSearch(patient, filters.searchText),
   );
+}
+
+// Status ranks by lifecycle order (the enum's declared order), not alphabetically, so a status
+// sort reads as care progression rather than A→Z label noise.
+const STATUS_RANK: Record<PatientStatus, number> = Object.values(PatientStatus).reduce(
+  (rank, status, index) => ({ ...rank, [status]: index }),
+  {} as Record<PatientStatus, number>,
+);
+
+// The single ascending comparator for a field, shared by the data layer and the table's column
+// sorters so the two can never drift (one ordering, defined once).
+export function compareCaseloadPatients(
+  field: CaseloadSortField,
+  a: PatientWithRelations,
+  b: PatientWithRelations,
+): number {
+  if (field === CaseloadSortField.Age) {
+    return DateTimeUtil.calculateAge(a.dateOfBirth) - DateTimeUtil.calculateAge(b.dateOfBirth);
+  }
+  if (field === CaseloadSortField.Status) {
+    return STATUS_RANK[a.status] - STATUS_RANK[b.status];
+  }
+  return patientFullName(a).localeCompare(patientFullName(b));
+}
+
+// One shared ordering applied after filtering so card and table render the SAME sequence (spec
+// §8). Pure and stable — returns a new array, leaving the source untouched. Name is the default.
+export function sortCaseloadPatients(
+  patients: PatientWithRelations[],
+  field: CaseloadSortField,
+  direction: CaseloadSortDirection,
+): PatientWithRelations[] {
+  const factor = direction === CaseloadSortDirection.Desc ? -1 : 1;
+  return [...patients].sort((a, b) => compareCaseloadPatients(field, a, b) * factor);
 }
 
 export interface CaseloadFacets {

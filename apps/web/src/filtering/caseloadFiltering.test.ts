@@ -3,7 +3,8 @@ import { PatientStatus } from '@finni/shared';
 import { buildPatient } from '@/test/patientFixture';
 import { EMPTY_FILTERS } from '@/state/useCaseloadStore';
 import type { CaseloadFilters } from '@/state/useCaseloadStore';
-import { applyCaseloadFilters, deriveFilterFacets, patientFullName } from '@/filtering/caseloadFiltering';
+import { applyCaseloadFilters, deriveFilterFacets, patientFullName, sortCaseloadPatients } from '@/filtering/caseloadFiltering';
+import { CaseloadSortDirection, CaseloadSortField } from '@/enums/caseloadSort';
 
 // Birth years chosen far apart so age assertions hold regardless of the day the suite runs.
 const young = buildPatient({
@@ -95,6 +96,40 @@ describe('deriveFilterFacets', () => {
 
   it('reports null age bounds for an empty set', () => {
     expect(deriveFilterFacets([]).ageBounds).toBeNull();
+  });
+});
+
+describe('sortCaseloadPatients', () => {
+  // young = Maria … Nguyen (b.2010, Inquiry); older = George Park (b.1968, Active).
+  it('sorts by name A→Z by default and reverses on descending, without mutating the source', () => {
+    const source = [young, older];
+    expect(ids(sortCaseloadPatients(source, CaseloadSortField.Name, CaseloadSortDirection.Asc))).toEqual([
+      'older',
+      'young',
+    ]);
+    expect(ids(sortCaseloadPatients(source, CaseloadSortField.Name, CaseloadSortDirection.Desc))).toEqual([
+      'young',
+      'older',
+    ]);
+    expect(ids(source)).toEqual(['young', 'older']); // source untouched
+  });
+
+  it('sorts by age ascending (youngest first) and descending', () => {
+    expect(ids(sortCaseloadPatients([older, young], CaseloadSortField.Age, CaseloadSortDirection.Asc))).toEqual([
+      'young',
+      'older',
+    ]);
+    expect(ids(sortCaseloadPatients([young, older], CaseloadSortField.Age, CaseloadSortDirection.Desc))).toEqual([
+      'older',
+      'young',
+    ]);
+  });
+
+  it('sorts by status in lifecycle order (Inquiry before Active), not alphabetically', () => {
+    expect(ids(sortCaseloadPatients([older, young], CaseloadSortField.Status, CaseloadSortDirection.Asc))).toEqual([
+      'young',
+      'older',
+    ]);
   });
 });
 

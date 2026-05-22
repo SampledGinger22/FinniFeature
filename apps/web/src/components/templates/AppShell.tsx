@@ -2,7 +2,6 @@ import type { ReactNode } from 'react';
 import { Button, Tooltip } from 'antd';
 import {
   AppstoreOutlined,
-  CalendarOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   SettingOutlined,
@@ -21,10 +20,10 @@ interface AppShellNavItem {
   icon: ReactNode;
 }
 
-// Real, working destinations only — Inbox/Reports from the reference are omitted until they exist.
+// Real, working destinations only — Inbox/Reports are omitted until they exist, and "Your day" is
+// hidden until that page is demo-ready (its route is also disabled in FinniRoot).
 const shellNavItems: readonly AppShellNavItem[] = [
   { path: '/', label: 'Caseload', icon: <AppstoreOutlined /> },
-  { path: '/your-day', label: 'Your day', icon: <CalendarOutlined /> },
 ];
 
 const SETTINGS_PATH = '/settings';

@@ -4,6 +4,7 @@ import { PlusOutlined } from '@ant-design/icons';
 import { RepositoryScope } from '@finni/shared';
 import type { PatientWithRelations } from '@finni/shared';
 import { CaseloadViewSwitcher } from '@/components/molecules/CaseloadViewSwitcher';
+import { CaseloadSortControl } from '@/components/molecules/CaseloadSortControl';
 import { PageHeader } from '@/components/molecules/PageHeader';
 import { ErrorBoundary } from '@/components/molecules/ErrorBoundary';
 import { CaseloadFilterBar } from '@/components/organisms/CaseloadFilterBar';
@@ -45,6 +46,7 @@ export function CaseloadPage(): JSX.Element {
         title="Caseload"
         actions={
           <Space>
+            <CaseloadSortControl />
             <CaseloadViewSwitcher />
             <Button type="primary" icon={<PlusOutlined />} onClick={() => setCreateOpen(true)}>
               Add patient

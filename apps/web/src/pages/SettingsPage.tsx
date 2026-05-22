@@ -5,6 +5,7 @@ import { PageHeader } from '@/components/molecules/PageHeader';
 import { DemoControls } from '@/components/organisms/DemoControls';
 import { usePreferencesStore } from '@/state/usePreferencesStore';
 import { useSettingsPageStyles } from '@/pages/SettingsPage.styles';
+import { TIMEZONE_AUTO, TIMEZONE_OPTIONS } from '@/config/timezones';
 
 // Human-readable labels for each ThemePalette value — displayed in the Select control.
 const themePaletteLabels: Record<ThemePalette, string> = {
@@ -37,16 +38,6 @@ const themePaletteOptions = Object.values(ThemePalette).map((value) => ({ label:
 const fontFamilyOptions = Object.values(FontFamily).map((value) => ({ label: fontFamilyLabels[value], value }));
 const fontScaleSegmentOptions = Object.values(FontScale).map((value) => ({ label: fontScaleLabels[value], value }));
 const densitySegmentOptions = Object.values(Density).map((value) => ({ label: densityLabels[value], value }));
-
-// IANA zones for the timezone picker, sourced from the runtime so the list stays current; the
-// sentinel clears the override back to auto-detect. Guarded for runtimes lacking the API.
-const TIMEZONE_AUTO = 'auto';
-type IntlWithZones = { supportedValuesOf?: (key: 'timeZone') => string[] };
-const runtimeTimeZones = (Intl as IntlWithZones).supportedValuesOf?.('timeZone') ?? [];
-const timezoneOptions = [
-  { value: TIMEZONE_AUTO, label: 'Auto-detect' },
-  ...runtimeTimeZones.map((zone) => ({ value: zone, label: zone })),
-];
 
 // Settings page: wires usePreferencesStore to controls so every change propagates live through
 // FinniThemeProvider without a page reload. DemoControls is kept in a clearly-separated card.
@@ -131,8 +122,9 @@ export function SettingsPage(): JSX.Element {
             <div className={styles.controlCol}>
               <Select
                 showSearch
+                optionFilterProp="label"
                 value={timezone ?? TIMEZONE_AUTO}
-                options={timezoneOptions}
+                options={TIMEZONE_OPTIONS}
                 onChange={handleTimezoneChange}
                 aria-label="Timezone"
               />

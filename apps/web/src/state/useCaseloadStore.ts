@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { PatientStatus, RepositoryScope } from '@finni/shared';
 import { CaseloadViewMode } from '@/enums/caseloadViewMode';
+import { CaseloadSortDirection, CaseloadSortField } from '@/enums/caseloadSort';
 
 // The hero compound filter (§9). Empty/null means "no constraint on this facet" — it is general,
 // never hardcoded to a specific query. Scope is the one server dimension; the rest run client-side
@@ -30,8 +31,11 @@ interface CaseloadState {
   viewMode: CaseloadViewMode;
   scope: RepositoryScope;
   filters: CaseloadFilters;
+  sortField: CaseloadSortField;
+  sortDirection: CaseloadSortDirection;
   setViewMode: (mode: CaseloadViewMode) => void;
   setScope: (scope: RepositoryScope) => void;
+  setSort: (field: CaseloadSortField, direction: CaseloadSortDirection) => void;
   setStatuses: (statuses: PatientStatus[]) => void;
   toggleStatus: (status: PatientStatus) => void;
   setRegion: (region: string | null) => void;
@@ -46,8 +50,11 @@ export const useCaseloadStore = create<CaseloadState>()((set) => ({
   viewMode: CaseloadViewMode.Card,
   scope: RepositoryScope.Active,
   filters: EMPTY_FILTERS,
+  sortField: CaseloadSortField.Name,
+  sortDirection: CaseloadSortDirection.Asc,
   setViewMode: (viewMode) => set({ viewMode }),
   setScope: (scope) => set({ scope }),
+  setSort: (sortField, sortDirection) => set({ sortField, sortDirection }),
   setStatuses: (statuses) => set((state) => ({ filters: { ...state.filters, statuses } })),
   toggleStatus: (status) =>
     set((state) => {

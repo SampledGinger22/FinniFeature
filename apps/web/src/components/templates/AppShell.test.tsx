@@ -38,21 +38,21 @@ describe('AppShell', () => {
   it('renders the working nav items, Settings, and the provider chip', () => {
     renderShell('/');
     expect(screen.getByRole('button', { name: 'Caseload' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Your day' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Settings' })).toBeInTheDocument();
     expect(screen.getByText('Dr. Jamie Kim')).toBeInTheDocument();
   });
 
-  it('omits the unbuilt Inbox and Reports items', () => {
+  it('omits the unbuilt Inbox/Reports items and the not-yet-demo-ready Your day', () => {
     renderShell('/');
     expect(screen.queryByRole('button', { name: 'Inbox' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Reports' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Your day' })).not.toBeInTheDocument();
   });
 
   it('marks the nav item for the current route as the active page', () => {
-    renderShell('/your-day');
-    expect(screen.getByRole('button', { name: 'Your day' })).toHaveAttribute('aria-current', 'page');
-    expect(screen.getByRole('button', { name: 'Caseload' })).not.toHaveAttribute('aria-current');
+    renderShell('/');
+    expect(screen.getByRole('button', { name: 'Caseload' })).toHaveAttribute('aria-current', 'page');
+    expect(screen.getByRole('button', { name: 'Settings' })).not.toHaveAttribute('aria-current');
   });
 
   it('keeps Settings active while viewing Trash', () => {
