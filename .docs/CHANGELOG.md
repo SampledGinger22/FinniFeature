@@ -409,3 +409,9 @@
   because the `apps/api` root package.json declared none; `22.x` is the supported runtime. The env
   declaration clears turbo's "set on Vercel but missing from turbo.json" build warning (`VITE_USE_HEADSHOTS`
   is auto-handled by turbo's Vite inference).
+- Removed `"type": "module"` from `apps/api/package.json` (only — `@finni/shared` and `@finni/web` keep
+  it). *Why:* deployed functions 500'd with `ReferenceError: exports is not defined in ES module scope` —
+  `@vercel/node@5.1.0` bundles each function to CommonJS, but `type: module` made Node load the emitted
+  `.js` as ESM. Safe: prod functions are self-contained CJS bundles, Bun runs the `.ts` dev server/scripts
+  as ESM regardless of the field, and the type-check uses `module: ESNext` (not `NodeNext`) so it doesn't
+  key on the `type` field. Verified: api type-check + 31 tests pass, dev server boots and seeds.
