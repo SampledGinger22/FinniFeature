@@ -1,4 +1,4 @@
-import { describe, it, expect, afterEach } from 'vitest';
+import { describe, it, expect, afterEach, vi } from 'vitest';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
@@ -6,10 +6,23 @@ import { renderWithProviders } from '@/test/renderWithProviders';
 import { usePreferencesStore } from '@/state/usePreferencesStore';
 import { AppShell } from '@/components/templates/AppShell';
 
-// Collapse state lives on the persisted store; reset it (and force expanded) between cases.
+const realMatchMedia = window.matchMedia;
+
+// Collapse state lives on the persisted store; reset it (and force expanded) between cases. Also
+// restore matchMedia in case a narrow-viewport case stubbed it.
 afterEach(() => {
   usePreferencesStore.setState({ sidebarCollapsed: false });
+  window.matchMedia = realMatchMedia;
 });
+
+// Forces the auto-collapse media query to report a narrow viewport.
+function stubNarrowViewport(): void {
+  window.matchMedia = vi.fn().mockReturnValue({
+    matches: true,
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+  }) as unknown as typeof window.matchMedia;
+}
 
 function renderShell(initialPath: string): ReturnType<typeof renderWithProviders> {
   return renderWithProviders(
@@ -66,5 +79,16 @@ describe('AppShell', () => {
   it('renders its children in the main content area', () => {
     renderShell('/');
     expect(screen.getByText('page content')).toBeInTheDocument();
+  });
+
+  it('auto-collapses on a narrow viewport and hides the manual toggle', () => {
+    stubNarrowViewport();
+    renderShell('/');
+    // Forced collapse: labels hidden and the collapse/expand toggle is gone (width-enforced).
+    expect(screen.queryByText('Caseload')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /collapse sidebar/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /expand sidebar/i })).not.toBeInTheDocument();
+    // Nav is still reachable via the aria-labelled icon buttons.
+    expect(screen.getByRole('button', { name: 'Caseload' })).toBeInTheDocument();
   });
 });

@@ -31,12 +31,15 @@ export const useCaseloadPipelineBarStyles = createStyles(({ css, token }) => ({
   `,
   bar: css`
     display: flex;
+    flex-wrap: wrap;
     gap: var(--finni-space-xs);
     align-items: stretch;
   `,
   segment: css`
-    flex-basis: 0;
-    min-width: calc(var(--finni-space-xl) * 3);
+    /* Wide: all six fit one row, sized proportionally. Narrow/half-screen: the basis forces a
+       wrap so the pills reflow into two rows instead of squashing or overflowing. */
+    flex-basis: calc(var(--finni-space-xl) * 6);
+    min-width: calc(var(--finni-space-xl) * 5);
     display: flex;
     align-items: center;
     gap: var(--finni-space-sm);

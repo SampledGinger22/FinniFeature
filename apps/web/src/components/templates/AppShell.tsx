@@ -11,6 +11,8 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { BrandLogo } from '@/components/atoms/BrandLogo';
 import { ProviderIdentityChip } from '@/components/atoms/ProviderIdentityChip';
 import { usePreferencesStore } from '@/state/usePreferencesStore';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
+import { finniLayout } from '@/theme/finniTokens';
 import { useAppShellStyles } from '@/components/templates/AppShell.styles';
 
 interface AppShellNavItem {
@@ -38,8 +40,13 @@ export function AppShell({ children }: AppShellProps): JSX.Element {
   const { styles, cx } = useAppShellStyles();
   const navigate = useNavigate();
   const location = useLocation();
-  const collapsed = usePreferencesStore((state) => state.sidebarCollapsed);
+  const userCollapsed = usePreferencesStore((state) => state.sidebarCollapsed);
   const toggleSidebar = usePreferencesStore((state) => state.toggleSidebar);
+
+  // Below the breakpoint the sidebar auto-collapses to an icon rail so the data stays in view; the
+  // manual toggle is hidden there since collapse is enforced by width, not preference.
+  const isNarrow = useMediaQuery(`(max-width: ${finniLayout.collapseBreakpoint}px)`);
+  const collapsed = userCollapsed || isNarrow;
 
   // Trash lives under the Settings area, so Settings stays highlighted while viewing it.
   const isActive = (path: string): boolean =>
@@ -73,13 +80,15 @@ export function AppShell({ children }: AppShellProps): JSX.Element {
       <aside className={cx(styles.sidebar, collapsed && styles.sidebarCollapsed)} aria-label="Primary">
         <div className={cx(styles.brandRow, collapsed && styles.brandRowCollapsed)}>
           {!collapsed && <BrandLogo />}
-          <Button
-            type="text"
-            className={styles.collapseToggle}
-            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-            aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-            onClick={toggleSidebar}
-          />
+          {!isNarrow && (
+            <Button
+              type="text"
+              className={styles.collapseToggle}
+              icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+              aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+              onClick={toggleSidebar}
+            />
+          )}
         </div>
 
         <nav className={styles.nav} aria-label="Workspace">

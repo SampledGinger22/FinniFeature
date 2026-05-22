@@ -110,15 +110,15 @@ export const useAppShellStyles = createStyles(({ css, token }) => ({
     flex: 1;
     min-width: 0;
     box-sizing: border-box;
-    padding: var(--finni-space-xl);
+    /* Fluid horizontal padding grows with the viewport so the content scales instead of sitting
+       in a fixed, centered column (clamped between comfortable min/max gutters). */
+    padding: var(--finni-space-xl) clamp(var(--finni-space-md), 2.5vw, calc(var(--finni-space-xl) * 2));
     display: flex;
     flex-direction: column;
     gap: var(--finni-space-lg);
   `,
   mainInner: css`
     width: 100%;
-    max-width: var(--finni-content-max-w);
-    margin: 0 auto;
     display: flex;
     flex-direction: column;
     gap: var(--finni-space-lg);

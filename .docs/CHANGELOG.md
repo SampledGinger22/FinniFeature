@@ -263,3 +263,13 @@
 - Renamed the **Waitlisted** status *label* to **Waitlist** across the app (centralized in
   `patientStatusLabels`, so table/pipeline/filter/drawers all update). The stored enum value
   (`'waitlisted'`) and the API/DB contract are unchanged — display-only.
+
+### Visual redesign — responsive layout (extends D55)
+- **Fluid content width**: the main column no longer sits in a fixed, centered ~1180px cap; it fills
+  the available width with fluid horizontal gutters (`clamp(...)`), so the caseload grows/scales with the
+  viewport on both small and large screens. Dropped `--finni-content-max-w`/`finniLayout.contentMaxWidth`.
+- **Sidebar auto-collapses** to the icon rail at/below `finniLayout.collapseBreakpoint` (1024px) so the
+  data stays in view; the manual collapse toggle is hidden there (collapse is width-enforced). New generic
+  `useMediaQuery` hook drives it. +2 hook tests, +1 AppShell test.
+- **Pipeline pills wrap** into two rows on narrow/half-screen widths (`flex-wrap` + a segment flex-basis)
+  instead of squashing or overflowing.

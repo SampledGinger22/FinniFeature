@@ -17,7 +17,6 @@ export const buildFinniCssVariables = (palette: ThemePalette): Record<string, st
     '--finni-space-xl': `${finniSpacing.xl}px`,
     '--finni-sidebar-w': `${finniLayout.sidebarWidth}px`,
     '--finni-sidebar-w-collapsed': `${finniLayout.sidebarCollapsedWidth}px`,
-    '--finni-content-max-w': `${finniLayout.contentMaxWidth}px`,
     '--finni-avatar-silhouette': finniAvatarSilhouette,
   };
   for (const [status, set] of Object.entries(finniStatusColors[palette])) {

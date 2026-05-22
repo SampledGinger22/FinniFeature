@@ -109,9 +109,9 @@ export const finniAvatarSilhouette = '#fbf7f0';
 export const finniRadius = { sm: 6, md: 10, lg: 16, pill: 999 } as const;
 export const finniSpacing = { xs: 4, sm: 8, md: 12, lg: 16, xl: 24, xxl: 32 } as const;
 
-// App-shell layout sizing: sidebar widths (expanded/collapsed) and the main content max width
-// that keeps the caseload readable on wide monitors. Raw values live here (the token source).
-export const finniLayout = { sidebarWidth: 248, sidebarCollapsedWidth: 76, contentMaxWidth: 1180 } as const;
+// App-shell layout sizing: sidebar widths (expanded/collapsed) and the viewport width at or below
+// which the sidebar auto-collapses to an icon rail so content stays in view. Raw values live here.
+export const finniLayout = { sidebarWidth: 248, sidebarCollapsedWidth: 76, collapseBreakpoint: 1024 } as const;
 
 // Base font size per FontScale preference; antd derives its size ramp from this.
 export const finniFontSize: Record<FontScale, number> = {
