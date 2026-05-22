@@ -305,3 +305,16 @@
 - Lifecycle stepper fix (feedback): replaced antd `Steps` with a **custom compact stepper** so all six
   statuses fit within the drawer width (no overflow/truncation, drawer not widened), connectors visually
   touch the circles, and spacing is tighter. Completed = check, current = filled, future = muted.
+
+### Editable address + contacts in the View/Edit drawer
+- **`patientUpdateSchema` extended** with an optional `primaryAddress` patch (`addressUpdateSchema`:
+  line1/city/zip nullable, region required) plus optional `primaryEmail` and nullable `phone`. New
+  `AddressUpdateInput` type. Patient-only updates still validate (the patches are optional). (D58)
+- **`updatePatient` is now transactional** and applies the address + email/phone patches: it updates the
+  primary address in place (re-encrypting street-level PHI), updates the primary email value, and
+  updates/inserts/removes the phone contact (cleared → removed, none → inserted) — all in one transaction.
+  New repo helpers: `updatePrimaryAddressRow`, `findContactIdByType`, `updateContactValueRow`,
+  `deleteContactMethodRow`.
+- **Edit drawer form** gains Primary email, Phone, Street, City, State (US-state Select), ZIP — seeded
+  from the record and submitted with the patient fields; nested validation errors map back to their
+  inputs. +5 shared, +4 api, +1 web tests.

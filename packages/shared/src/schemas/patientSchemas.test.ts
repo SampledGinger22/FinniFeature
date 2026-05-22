@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { patientCreateSchema } from '@/schemas/patientSchemas';
+import { patientCreateSchema, patientUpdateSchema } from '@/schemas/patientSchemas';
 import { AddressType, ContactLabel, ContactMethodType, PatientStatus } from '@/enums/domainEnums';
 
 // A minimal valid payload; tests clone and mutate it to isolate one rule at a time.
@@ -96,5 +96,43 @@ describe('patientCreateSchema — contact value validation', () => {
     const payload = validPayload();
     payload.contactMethods.push({ type: ContactMethodType.Phone, value: '123' });
     expect(patientCreateSchema.safeParse(payload).success).toBe(false);
+  });
+});
+
+describe('patientUpdateSchema', () => {
+  const base = {
+    firstName: 'Ada',
+    middleName: null,
+    lastName: 'Lovelace',
+    dateOfBirth: '1990-12-10',
+    status: PatientStatus.Active,
+    hasInsurance: true,
+  };
+
+  it('accepts patient-only updates (address/contacts optional)', () => {
+    expect(patientUpdateSchema.safeParse(base).success).toBe(true);
+  });
+
+  it('accepts a primary address, email, and phone patch', () => {
+    const payload = {
+      ...base,
+      primaryAddress: { line1: '1 Test St', city: 'Albany', region: 'NY', postalCode: '12207' },
+      primaryEmail: 'ada@example.com',
+      phone: '+1 212 555 0142',
+    };
+    expect(patientUpdateSchema.safeParse(payload).success).toBe(true);
+  });
+
+  it('allows phone to be null (cleared)', () => {
+    expect(patientUpdateSchema.safeParse({ ...base, phone: null }).success).toBe(true);
+  });
+
+  it('rejects a primary address with no region (state)', () => {
+    const payload = { ...base, primaryAddress: { line1: null, city: null, region: '', postalCode: null } };
+    expect(patientUpdateSchema.safeParse(payload).success).toBe(false);
+  });
+
+  it('rejects an invalid primary email', () => {
+    expect(patientUpdateSchema.safeParse({ ...base, primaryEmail: 'not-an-email' }).success).toBe(false);
   });
 });

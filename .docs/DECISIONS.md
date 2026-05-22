@@ -297,3 +297,11 @@ graded (UI/UX and code quality for patient management).
   helper, the `Board` `CaseloadViewMode` value, the switcher option, and the `boardStatuses` column-chooser
   state. The caseload now offers Cards + Table over the one shared filter layer. The `@dnd-kit/core`
   dependency (added solely for board drag-and-drop in D54) was dropped, retiring D54.
+- **D58 — Edit persists the primary address + contacts in one transaction.** The edit drawer became
+  read-first with an editable mode, and the update contract grew to cover the primary address and the
+  email/phone contacts (not just patient fields, superseding the "addresses/contacts edit separately,
+  later" note on `patientUpdateSchema`). The patches are **optional** so patient-only updates still
+  validate. `updatePatient` runs patient + address + contact writes in one `db.transaction` so a partial
+  edit never persists; street-level address PHI and contact values are re-encrypted in the repository
+  layer (D39). Phone is upsert/remove (cleared → deleted, absent → inserted). Contacts are matched by
+  type (the primary email; the single phone) — the model stays one-email-one-phone for the edit form.

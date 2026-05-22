@@ -1,11 +1,22 @@
 import { uuidv7 } from 'uuidv7';
-import type { AddressCreateInput, ContactMethodCreateInput, PatientCreateInput, PatientWithRelations } from '@finni/shared';
-import { ContactMethodType, DateTimeUtil, SOFT_DELETE_PURGE_DAYS } from '@finni/shared';
+import type {
+  AddressCreateInput,
+  ContactMethodCreateInput,
+  PatientCreateInput,
+  PatientUpdateInput,
+  PatientWithRelations,
+} from '@finni/shared';
+import { ContactLabel, ContactMethodType, DateTimeUtil, SOFT_DELETE_PURGE_DAYS } from '@finni/shared';
 import type { AppDatabase } from '@/db/client';
 import { getDb } from '@/db/client';
 import { RepositoryScope } from '@/enums/repositoryScope';
-import { insertAddressRow } from '@/repositories/addressRepository';
-import { insertContactMethodRow } from '@/repositories/contactMethodRepository';
+import { insertAddressRow, updatePrimaryAddressRow } from '@/repositories/addressRepository';
+import {
+  deleteContactMethodRow,
+  findContactIdByType,
+  insertContactMethodRow,
+  updateContactValueRow,
+} from '@/repositories/contactMethodRepository';
 import {
   clearPatientDeleted,
   deletePatientRow,
@@ -17,7 +28,6 @@ import {
   setPatientArchived,
   updatePatientRow,
 } from '@/repositories/patientRepository';
-import type { PatientUpdate } from '@/repositories/patientRepository';
 
 // Business logic + transaction ownership (spec §5). UUID v7 PKs are generated here.
 
@@ -72,12 +82,48 @@ export async function createPatient(
   return created;
 }
 
+// Update the patient row and, when present, the primary address and email/phone contacts — all in
+// one transaction so a partial edit never persists. Phone null/cleared removes the phone contact;
+// a new phone is inserted when none exists.
 export async function updatePatient(
   id: string,
-  patch: PatientUpdate,
+  patch: PatientUpdateInput,
   db: AppDatabase = getDb(),
 ): Promise<PatientWithRelations | null> {
-  await updatePatientRow(db, id, patch);
+  await db.transaction(async (tx) => {
+    await updatePatientRow(tx, id, {
+      firstName: patch.firstName,
+      middleName: patch.middleName,
+      lastName: patch.lastName,
+      dateOfBirth: patch.dateOfBirth,
+      status: patch.status,
+      hasInsurance: patch.hasInsurance,
+    });
+    if (patch.primaryAddress) {
+      await updatePrimaryAddressRow(tx, id, patch.primaryAddress);
+    }
+    if (patch.primaryEmail !== undefined) {
+      const emailId = await findContactIdByType(tx, id, ContactMethodType.Email);
+      if (emailId) await updateContactValueRow(tx, emailId, patch.primaryEmail);
+    }
+    if (patch.phone !== undefined) {
+      const phoneId = await findContactIdByType(tx, id, ContactMethodType.Phone);
+      if (patch.phone === null) {
+        if (phoneId) await deleteContactMethodRow(tx, phoneId);
+      } else if (phoneId) {
+        await updateContactValueRow(tx, phoneId, patch.phone);
+      } else {
+        await insertContactMethodRow(tx, {
+          id: uuidv7(),
+          patientId: id,
+          type: ContactMethodType.Phone,
+          value: patch.phone,
+          label: ContactLabel.Mobile,
+          isPrimary: false,
+        });
+      }
+    }
+  });
   return getPatientById(db, id, RepositoryScope.IncludeArchived);
 }
 

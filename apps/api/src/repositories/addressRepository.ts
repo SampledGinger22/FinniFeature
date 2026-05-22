@@ -1,4 +1,5 @@
-import { inArray } from 'drizzle-orm';
+import { and, eq, inArray } from 'drizzle-orm';
+import { DateTimeUtil } from '@finni/shared';
 import type { Address, AddressType } from '@finni/shared';
 import type { AppDatabase } from '@/db/client';
 import { address } from '@/db/schema';
@@ -33,6 +34,31 @@ export async function insertAddressRow(db: AppDatabase, values: AddressInsert): 
     postalCode: encryptNullablePhi(values.postalCode),
     country: values.country,
   });
+}
+
+export interface AddressUpdate {
+  line1: string | null;
+  city: string | null;
+  region: string;
+  postalCode: string | null;
+}
+
+// Update the patient's primary address in place; street-level PHI is re-encrypted (D39).
+export async function updatePrimaryAddressRow(
+  db: AppDatabase,
+  patientId: string,
+  patch: AddressUpdate,
+): Promise<void> {
+  await db
+    .update(address)
+    .set({
+      line1: encryptNullablePhi(patch.line1),
+      city: patch.city,
+      region: patch.region,
+      postalCode: encryptNullablePhi(patch.postalCode),
+      updatedAt: DateTimeUtil.nowUtc(),
+    })
+    .where(and(eq(address.patientId, patientId), eq(address.isPrimary, true)));
 }
 
 export async function findAddressesByPatientIds(db: AppDatabase, patientIds: string[]): Promise<Address[]> {

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { App, Button, DatePicker, Drawer, Form, Input, Switch, Timeline, Typography } from 'antd';
+import { App, Button, DatePicker, Drawer, Form, Input, Select, Switch, Timeline, Typography } from 'antd';
 import {
   CheckOutlined,
   EditOutlined,
@@ -27,6 +27,7 @@ import {
   useUpdatePatientMutation,
 } from '@/queries/patientQueries';
 import { patientFullName, patientInitials } from '@/filtering/caseloadFiltering';
+import { US_STATES } from '@/config/usStates';
 import { usePreferencesStore } from '@/state/usePreferencesStore';
 import { usePatientEditDrawerStyles } from '@/components/organisms/PatientEditDrawer.styles';
 
@@ -43,6 +44,12 @@ interface PatientEditFormValues {
   dateOfBirth: string;
   status: PatientStatus;
   hasInsurance: boolean;
+  line1: string;
+  city: string;
+  region: string;
+  postalCode: string;
+  email: string;
+  phone: string;
 }
 
 type DrawerMode = 'view' | 'edit';
@@ -60,6 +67,39 @@ function formatLocality(patient: PatientWithRelations): string {
   const address = primaryAddress(patient);
   if (!address) return '—';
   return address.city ? `${address.city}, ${address.region}` : address.region;
+}
+
+function primaryContactValue(patient: PatientWithRelations, type: ContactMethodType): string {
+  const match = patient.contactMethods.find((method) => method.type === type);
+  return match?.value ?? '';
+}
+
+// Seeds the edit form from the current record's patient fields, primary address, and contacts.
+function toFormValues(patient: PatientWithRelations): PatientEditFormValues {
+  const address = primaryAddress(patient);
+  return {
+    firstName: patient.firstName,
+    middleName: patient.middleName ?? '',
+    lastName: patient.lastName,
+    dateOfBirth: patient.dateOfBirth,
+    status: patient.status,
+    hasInsurance: patient.hasInsurance,
+    line1: address?.line1 ?? '',
+    city: address?.city ?? '',
+    region: address?.region ?? '',
+    postalCode: address?.postalCode ?? '',
+    email: primaryContactValue(patient, ContactMethodType.Email),
+    phone: primaryContactValue(patient, ContactMethodType.Phone),
+  };
+}
+
+// Maps a schema issue path (incl. nested primaryAddress/primaryEmail/phone) to the visible field.
+function resolveEditFieldName(path: PropertyKey[]): keyof PatientEditFormValues | null {
+  const [head, leaf] = path;
+  if (head === 'primaryAddress') return (leaf as keyof PatientEditFormValues) ?? null;
+  if (head === 'primaryEmail') return 'email';
+  if (head === 'phone') return 'phone';
+  return (head as keyof PatientEditFormValues) ?? null;
 }
 
 // View/Edit = right drawer (§8): the lateral motion signals "inspect a row". It opens read-first and
@@ -86,19 +126,13 @@ export function PatientEditDrawer({ patient, open, onClose }: PatientEditDrawerP
 
   useEffect(() => {
     if (mode === 'edit' && patient) {
-      form.setFieldsValue({
-        firstName: patient.firstName,
-        middleName: patient.middleName ?? '',
-        lastName: patient.lastName,
-        dateOfBirth: patient.dateOfBirth,
-        status: patient.status,
-        hasInsurance: patient.hasInsurance,
-      });
+      form.setFieldsValue(toFormValues(patient));
     }
   }, [mode, patient, form]);
 
   const handleFinish = (values: PatientEditFormValues): void => {
     if (!patient) return;
+    const phone = values.phone.trim();
     const candidate: PatientUpdateInput = {
       firstName: values.firstName,
       middleName: values.middleName.trim() === '' ? null : values.middleName.trim(),
@@ -106,15 +140,22 @@ export function PatientEditDrawer({ patient, open, onClose }: PatientEditDrawerP
       dateOfBirth: values.dateOfBirth,
       status: values.status,
       hasInsurance: values.hasInsurance,
+      primaryAddress: {
+        line1: values.line1.trim() === '' ? null : values.line1.trim(),
+        city: values.city.trim() === '' ? null : values.city.trim(),
+        region: values.region,
+        postalCode: values.postalCode.trim() === '' ? null : values.postalCode.trim(),
+      },
+      primaryEmail: values.email,
+      phone: phone === '' ? null : phone,
     };
     const parsed = patientUpdateSchema.safeParse(candidate);
     if (!parsed.success) {
-      form.setFields(
-        parsed.error.issues.map((issue) => ({
-          name: issue.path[0] as keyof PatientEditFormValues,
-          errors: [issue.message],
-        })),
-      );
+      for (const issue of parsed.error.issues) {
+        const name = resolveEditFieldName(issue.path);
+        if (name) form.setFields([{ name, errors: [issue.message] }]);
+        else message.error(issue.message);
+      }
       return;
     }
     updateMutation.mutate(
@@ -334,19 +375,7 @@ export function PatientEditDrawer({ patient, open, onClose }: PatientEditDrawerP
   };
 
   const renderEdit = (record: PatientWithRelations): JSX.Element => (
-    <Form
-      form={form}
-      layout="vertical"
-      initialValues={{
-        firstName: record.firstName,
-        middleName: record.middleName ?? '',
-        lastName: record.lastName,
-        dateOfBirth: record.dateOfBirth,
-        status: record.status,
-        hasInsurance: record.hasInsurance,
-      }}
-      onFinish={handleFinish}
-    >
+    <Form form={form} layout="vertical" initialValues={toFormValues(record)} onFinish={handleFinish}>
       <Form.Item label="First name" name="firstName">
         <Input />
       </Form.Item>
@@ -374,6 +403,24 @@ export function PatientEditDrawer({ patient, open, onClose }: PatientEditDrawerP
       </Form.Item>
       <Form.Item label="Insurance on file" name="hasInsurance" valuePropName="checked">
         <Switch />
+      </Form.Item>
+      <Form.Item label="Primary email" name="email">
+        <Input placeholder="ada@example.com" />
+      </Form.Item>
+      <Form.Item label="Phone" name="phone">
+        <Input allowClear placeholder="(212) 555-0142" />
+      </Form.Item>
+      <Form.Item label="Street" name="line1">
+        <Input allowClear />
+      </Form.Item>
+      <Form.Item label="City" name="city">
+        <Input allowClear />
+      </Form.Item>
+      <Form.Item label="State" name="region">
+        <Select showSearch options={US_STATES} placeholder="Select" optionFilterProp="label" />
+      </Form.Item>
+      <Form.Item label="ZIP" name="postalCode">
+        <Input allowClear />
       </Form.Item>
     </Form>
   );
