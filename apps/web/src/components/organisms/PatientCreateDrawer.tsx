@@ -11,6 +11,7 @@ import { StatusPillSelect } from '@/components/atoms/StatusPillSelect';
 import { US_STATES } from '@/config/usStates';
 import { finniLayout, finniRadius } from '@/theme/finniTokens';
 import { useCreatePatientMutation } from '@/queries/patientQueries';
+import { useReturnFocus } from '@/hooks/useReturnFocus';
 import { usePatientCreateDrawerStyles } from '@/components/organisms/PatientCreateDrawer.styles';
 
 interface PatientCreateDrawerProps {
@@ -89,6 +90,7 @@ export function PatientCreateDrawer({ open, onClose }: PatientCreateDrawerProps)
   const watchedDob = Form.useWatch('dateOfBirth', form);
   const watchedInsurance = Form.useWatch('hasInsurance', form);
   const mutation = useCreatePatientMutation();
+  useReturnFocus(open);
 
   const handleFinish = (values: PatientCreateFormValues): void => {
     // Build the raw shape and let the shared schema apply its defaults (country, label, isPrimary)

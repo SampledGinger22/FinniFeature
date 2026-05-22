@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { PatientStatus } from '@finni/shared';
 import { renderWithProviders } from '@/test/renderWithProviders';
 import { buildPatient } from '@/test/patientFixture';
@@ -26,6 +27,22 @@ describe('PatientCard', () => {
     const patient = buildPatient();
     renderWithProviders(<PatientCard patient={patient} onEdit={onEdit} />);
     screen.getByRole('button', { name: 'Edit Avery Johnson' }).click();
+    expect(onEdit).toHaveBeenCalledWith(patient);
+  });
+
+  it('is keyboard-operable: focusable and activated by Enter and Space (WCAG 2.1.1)', async () => {
+    const user = userEvent.setup();
+    const onEdit = vi.fn();
+    const patient = buildPatient();
+    renderWithProviders(<PatientCard patient={patient} onEdit={onEdit} />);
+
+    const card = screen.getByRole('button', { name: 'Edit Avery Johnson' });
+    await user.tab();
+    expect(card).toHaveFocus();
+
+    await user.keyboard('{Enter}');
+    await user.keyboard(' ');
+    expect(onEdit).toHaveBeenCalledTimes(2);
     expect(onEdit).toHaveBeenCalledWith(patient);
   });
 });

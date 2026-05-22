@@ -27,7 +27,8 @@ export function PatientCard({ patient, onEdit }: PatientCardProps): JSX.Element 
   const getMenu = usePatientActions();
   const fullName = [patient.firstName, patient.middleName, patient.lastName].filter(Boolean).join(' ');
 
-  // Right-click anywhere on the card opens the same actions menu the kebab does.
+  // Right-click anywhere on the card opens the same actions menu the kebab does. As a role="button"
+  // the card must also be keyboard-operable: focusable, and activated by Enter/Space (WCAG 2.1.1).
   return (
     <Dropdown menu={getMenu(patient)} trigger={['contextMenu']}>
       <Card
@@ -35,7 +36,14 @@ export function PatientCard({ patient, onEdit }: PatientCardProps): JSX.Element 
         className={styles.card}
         onClick={() => onEdit(patient)}
         role="button"
+        tabIndex={0}
         aria-label={`Edit ${fullName}`}
+        onKeyDown={(event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            onEdit(patient);
+          }
+        }}
       >
         <div className={styles.body}>
           <PatientAvatar seed={patient.id} size="large" alt={fullName} />

@@ -27,6 +27,7 @@ import {
 } from '@/queries/patientQueries';
 import { patientFullName, patientInitials } from '@/filtering/caseloadFiltering';
 import { US_STATES } from '@/config/usStates';
+import { useReturnFocus } from '@/hooks/useReturnFocus';
 import { usePreferencesStore } from '@/state/usePreferencesStore';
 import { usePatientEditDrawerStyles } from '@/components/organisms/PatientEditDrawer.styles';
 
@@ -110,6 +111,7 @@ export function PatientEditDrawer({ patient, open, onClose }: PatientEditDrawerP
   const [form] = Form.useForm<PatientEditFormValues>();
   const watchedDob = Form.useWatch('dateOfBirth', form);
   const timezone = usePreferencesStore((state) => state.timezone);
+  useReturnFocus(open);
 
   const updateMutation = useUpdatePatientMutation();
   const archive = useArchivePatientMutation();

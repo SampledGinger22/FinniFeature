@@ -350,3 +350,22 @@
 - **"Your day" hidden for now.** Removed its sidebar nav item and route (`/your-day` falls through to the
   catch-all redirect to `/`); the page + tests stay in the repo for easy re-enable. *Why:* the feature is
   incomplete and not demo-ready.
+- **Sort Select min-width** (`CaseloadSortControl.styles.ts`) so the option labels are not clipped inside
+  the compact group with the direction toggle. *Why:* user reported the order-by dropdown cut off the words.
+
+### Step 6 — E2E happy paths + accessibility (locked)
+- **E2E rewritten + expanded for the redesigned UI** (the prior specs predated the read-first drawer and
+  failed). New Playwright coverage, all run green against the dev pglite API: create via the bottom drawer
+  → edit through the read-first right drawer; required-field validation; archive → Show-archived round
+  trip; soft-delete → Trash → restore. Each mutating test creates its own uniquely-named subject
+  (`e2e/support/patientFlows.ts`) so they are parallel-safe on the shared backend.
+- **Accessibility, genuinely exercised** (`caseloadA11y.spec.ts`): switching card↔table preserves the
+  active filters and issues **zero** new list GETs (network-counted); both drawers trap focus and the
+  filter + view switcher are keyboard-operable.
+- **A11y fixes surfaced by those tests:**
+  - `PatientCard` was `role="button"` but a non-focusable `<div>` — now `tabIndex={0}` with an
+    Enter/Space `onKeyDown` so the default card grid is keyboard-operable (WCAG 2.1.1). +1 web test.
+  - New `useReturnFocus(open)` hook restores focus to the triggering control when either drawer closes
+    (WCAG 2.4.3); wired into both `PatientCreateDrawer` and `PatientEditDrawer`. +2 web tests.
+- Refreshed the stale `kitchen-sink` visual-regression baseline to the shipped redesign (the snapshot
+  predated it). E2E: 10 passing. Unit: web 121 / api 31 / shared 40.
